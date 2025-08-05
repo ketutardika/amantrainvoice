@@ -20,6 +20,7 @@ class Client extends Model
     protected $casts = [
         'custom_fields' => 'array',
         'credit_limit' => 'decimal:2',
+        'payment_terms' => 'integer',
         'is_active' => 'boolean',
     ];
 
