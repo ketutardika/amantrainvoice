@@ -33,7 +33,7 @@
         .header {
             width: 100%;
             margin-bottom: 25px;
-            border-bottom: 2px solid #6366f1;
+            border-bottom: 1px solid #6366f1;
             padding-bottom: 15px;
         }
         
@@ -43,55 +43,56 @@
         }
         
         .header-left {
-            width: 50%;
-            vertical-align: top;
+            width: 33.3%;
+            vertical-align: middle;
+        }
+
+        .header-center {
+            width: 33.3%;
+            vertical-align: middle;
+            text-align: center;
         }
         
         .header-right {
-            width: 50%;
-            vertical-align: top;
+            width: 33.3%;
+            vertical-align: middle;
             text-align: right;
         }
         
         .company-name {
-            font-size: 20px;
+            font-size: 14px;
             font-weight: bold;
             color: #111;
-            margin-bottom: 3px;
+            text-transform: uppercase;
         }
         
         .company-tagline {
-            font-size: 9px;
+            font-size: 11px;
             color: #6366f1;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 6px;
         }
         
         .company-info {
-            font-size: 9px;
+            font-size: 11px;
             color: #666;
             line-height: 1.2;
         }
         
         .invoice-title {
-            font-size: 24px;
+            font-size: 16px;
             font-weight: bold;
             color: #111;
-            margin-bottom: 4px;
         }
         
         .invoice-number {
-            font-size: 12px;
+            font-size: 11px;
             color: #6366f1;
             font-weight: bold;
-            margin-bottom: 8px;
         }
         
         .date-box {
-            padding: 8px;
-            font-size: 9px;
-            margin-top: 5px;
+            font-size: 10px;
         }
         
         .date-line {
@@ -105,7 +106,7 @@
         /* Content Section */
         .content-section {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         
         .content-table {
@@ -132,37 +133,34 @@
         }
         
         .section-title {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: bold;
             text-transform: uppercase;
             color: #374151;
-            padding-bottom: 2px;
-            margin-bottom: 8px;
+            margin-bottom: 3px;
         }
         
         .client-name {
-            font-size: 14px;
+            font-size: 11px;
             font-weight: bold;
             color: #111;
-            margin-bottom: 3px;
         }
         
         .client-company {
             font-size: 11px;
             color: #6366f1;
             font-weight: bold;
-            margin-bottom: 5px;
         }
         
         .client-info {
-            font-size: 9px;
+            font-size: 11px;
             color: #666;
             line-height: 1.3;
         }
         
         .detail-line {
             margin-bottom: 4px;
-            font-size: 9px;
+            font-size: 11px;
         }
         
         .detail-label {
@@ -197,7 +195,7 @@
         }
         
         .items-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             color: #111;
             margin-bottom: 8px;
@@ -215,7 +213,7 @@
         .items-table td {
             border: 1px solid #e2e8f0;
             padding: 6px;
-            font-size: 9px;
+            font-size: 11px;
             vertical-align: top;
             word-wrap: break-word;
         }
@@ -237,7 +235,7 @@
         
         .item-name {
             font-weight: bold;
-            font-size: 10px;
+            font-size: 11px;
             margin-bottom: 2px;
         }
         
@@ -307,8 +305,9 @@
         }
         
         .summary-title {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
+            text-transform: uppercase;
             color: #374151;
             margin: 0;
         }
@@ -324,7 +323,7 @@
         
         .total-table td {
             padding: 2px 0;
-            font-size: 9px;
+            font-size: 11px;
         }
         
         .total-label {
@@ -347,12 +346,73 @@
         }
         
         .grand-total-table td {
-            font-size: 9px;
+            font-size: 11px;
             padding: 0;
         }
         
         .balance-due {
             
+        }
+        
+        /* Payment Information Section */
+        .payment-section {
+            margin-top:30px;
+            margin-bottom: 15px;
+        }
+        
+        .payment-title-section {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .payment-main-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #111;
+        }
+        
+        .payment-subtitle {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .payment-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+        
+        .payment-left {
+            width: 50%;
+            vertical-align: top;
+            padding-right: 10px;
+        }
+        
+        .payment-right {
+            width: 50%;
+            vertical-align: top;
+            padding-left: 10px;
+        }
+        
+        .bank-info {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 1px solid #6366f1;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .bank-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        
+        .bank-detail {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.4;
         }
         
         /* Notes Section */
@@ -362,37 +422,42 @@
         
         .notes-table {
             width: 100%;
-            table-layout: fixed;
+            table-layout: fixed;            
+            background: #f8fafc;
+            padding: 10px;
         }
         
         .notes-left {
-            width: 48%;
             vertical-align: top;
-            padding-right: 1%;
         }
         
         .notes-right {
-            width: 48%;
             vertical-align: top;
-            padding-left: 1%;
         }
         
         .note-box {
-            background: #f8fafc;
-            border-left: 2px solid #6366f1;
-            padding: 10px;
             margin-bottom: 8px;
+        }
+        .note-box ul {
+            list-style: decimal;
+            padding-left: 20px;
+        }
+
+        .note-box ol {
+            list-style: decimal;
+            padding-left: 20px;
         }
         
         .note-title {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
             color: #111;
-            margin-bottom: 4px;
+            margin-bottom: 10px;
+            text-align: center;
         }
         
         .note-content {
-            font-size: 8px;
+            font-size: 11px;
             color: #666;
             line-height: 1.3;
         }
@@ -406,7 +471,7 @@
         }
         
         .thank-you {
-            font-size: 14px;
+            font-size: 11px;
             font-weight: bold;
             color: #111;
             margin-bottom: 6px;
@@ -437,20 +502,18 @@
             <table class="header-table">
                 <tr>
                     <td class="header-left">
+                        <div class="invoice-title">INVOICE</div>
+                    </td>
+                    <td class="header-center">
                         <div class="company-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
-                        <div class="company-tagline">Invoice Management System</div>
                     </td>
                     <td class="header-right">
-                        <div class="invoice-title">INVOICE</div>                        
-                        <div class="invoice-number">#{{ $record->invoice_number }}</div>
                         <div class="date-box">
                             <div class="date-line">
-                                <strong>Date:</strong> {{ $record->invoice_date->format('M d, Y') }}
-                            </div>
-                            <div class="date-line">
-                                <strong>Due:</strong> {{ $record->due_date->format('M d, Y') }}
+                                {{ $record->invoice_date->format('M d, Y') }}
                             </div>
                         </div>
+                        <div class="invoice-number">#{{ $record->invoice_number }}</div> 
                     </td>
                 </tr>
             </table>
@@ -462,25 +525,7 @@
                 <tr>
                     <td class="content-left">
                         <div class="info-box">
-                            <div class="section-title">FROM</div>
-                            <div class="client-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
-                            <div class="client-info">
-                                {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com') }}
-                                @if(\App\Models\InvoiceSettings::getValue('company_phone'))
-                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_phone') }}
-                                @endif
-                                @if(\App\Models\InvoiceSettings::getValue('company_website'))
-                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_website') }}
-                                @endif
-                                @if(\App\Models\InvoiceSettings::getValue('company_address'))
-                                    <br><br>{!! \App\Models\InvoiceSettings::getValue('company_address') !!}
-                                @endif
-                            </div>
-                        </div>
-                    </td>
-                    <td class="content-right">
-                        <div class="info-box">
-                            <div class="section-title">BILL TO</div>
+                            <div class="section-title">Bill To</div>
                             <div class="client-name">{{ $record->client->name }}</div>
                             @if($record->client->company_name)
                                 <div class="client-company">{{ $record->client->company_name }}</div>
@@ -490,15 +535,15 @@
                                 @if($record->client->phone)
                                     <br>{{ $record->client->phone }}
                                 @endif
-                                @if($record->client->address)
-                                    <br><br>{{ $record->client->address }}
+                                <!-- @if($record->client->address)
+                                    <br>{!! $record->client->address !!}
                                     @if($record->client->city || $record->client->state || $record->client->postal_code)
                                         <br>{{ $record->client->city }}@if($record->client->city && ($record->client->state || $record->client->postal_code)), @endif{{ $record->client->state }} {{ $record->client->postal_code }}
                                     @endif
                                     @if($record->client->country)
                                         <br>{{ $record->client->country }}
                                     @endif
-                                @endif
+                                @endif -->
                             </div>
                             
                             @if($record->project)
@@ -514,6 +559,24 @@
                                     {{ ucfirst(str_replace('_', ' ', $record->status)) }}
                                 </span>
                             </div> -->
+                        </div>
+                    </td>
+                    <td class="content-right">
+                        <div class="info-box">
+                            <div class="section-title">From</div>
+                            <div class="client-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
+                            <div class="client-info">
+                                {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com') }}
+                                @if(\App\Models\InvoiceSettings::getValue('company_phone'))
+                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_phone') }}
+                                @endif
+                                @if(\App\Models\InvoiceSettings::getValue('company_website'))
+                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_website') }}
+                                @endif
+                                <!-- @if(\App\Models\InvoiceSettings::getValue('company_address'))
+                                    <br>{!! \App\Models\InvoiceSettings::getValue('company_address') !!}
+                                @endif -->
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -632,11 +695,43 @@
             </table>
         </div>
 
+        <!-- Payment Information Section -->
+        <div class="payment-section">
+            <div class="payment-title-section">
+                <div class="payment-main-title">Informasi Pembayaran</div>
+                <div class="payment-subtitle">Silakan transfer ke salah satu rekening berikut:</div>
+            </div>
+            
+            <table class="payment-table">
+                <tr>
+                    <td class="payment-left">
+                        <div class="bank-info">
+                            <div class="bank-title">Bank BCA</div>
+                            <div class="bank-detail">
+                                No. Rek: xxxx-xxxx-xxxx<br>
+                                A/N: [Nama Anda]
+                            </div>
+                        </div>
+                    </td>
+                    <td class="payment-right">
+                        <div class="bank-info">
+                            <div class="bank-title">Bank Mandiri</div>
+                            <div class="bank-detail">
+                                No. Rek: xxxx-xxxx-xxxx<br>
+                                A/N: [Nama Anda]
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
         <!-- Notes Section -->
         @if($record->notes || $record->terms_conditions)
         <div class="notes-section">
+            <div class="note-title">Terms & Conditions</div>
             <table class="notes-table">
-                <tr>
+                <!-- <tr>
                     @if($record->notes)
                     <td class="notes-left">
                         <div class="note-box">
@@ -645,12 +740,12 @@
                         </div>
                     </td>
                     @endif
-                    
+                </tr> -->
+                <tr> 
                     @if($record->terms_conditions)
                     <td class="notes-right">
                         <div class="note-box">
-                            <div class="note-title">Terms & Conditions</div>
-                            <div class="note-content">{{ $record->terms_conditions }}</div>
+                            <div class="note-content">{!! $record->terms_conditions !!}</div>
                         </div>
                     </td>
                     @endif
@@ -661,7 +756,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <div class="thank-you">Thank you for your business!</div>
+            <div class="thank-you">{{ \App\Models\InvoiceSettings::getValue('invoice_footer_text', 'Thank you for your business!') }}</div>
             <div class="generated">Generated on {{ now()->format('M d, Y \a\t g:i A') }}</div>
         </div>
     </div>

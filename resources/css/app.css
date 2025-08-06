@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Comprehensive fix for select dropdown options in dark mode */
+
+/* Target all select elements and their options */
+.dark select,
+[data-theme="dark"] select {
+    background-color: rgb(17 24 39) !important;
+    color: rgb(243 244 246) !important;
+}
+
+.dark select option,
+[data-theme="dark"] select option {
+    background-color: rgb(17 24 39) !important;
+    color: rgb(243 244 246) !important;
+}
+
+/* Filament specific selectors */
+.dark .fi-fo-select select,
+.dark .fi-fo-select select option {
+    background-color: rgb(17 24 39) !important;
+    color: rgb(243 244 246) !important;
+}
+
+/* Tom Select (used by Filament) */
+.dark .ts-dropdown,
+.dark .ts-dropdown .option {
+    background-color: rgb(17 24 39) !important;
+    color: rgb(243 244 246) !important;
+}
+
+.dark .ts-dropdown .option:hover,
+.dark .ts-dropdown .option.active {
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
+}
+
+/* Choices.js library */
+.dark .choices__list--dropdown {
+    background-color: rgb(17 24 39) !important;
+    border-color: rgb(55 65 81) !important;
+}
+
+.dark .choices__item {
+    background-color: rgb(17 24 39) !important;
+    color: rgb(243 244 246) !important;
+}
+
+.dark .choices__item:hover,
+.dark .choices__item.is-highlighted {
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
+}
+
+/* More specific Filament targeting */
+.dark .fi-select-input select,
+.dark .fi-select-input select option {
+    background-color: rgb(17 24 39) !important;
+    color: rgb(243 244 246) !important;
+}
+
+/* Universal fix for any dropdown in dark mode */
+html.dark select,
+html.dark select option,
+html[data-theme="dark"] select,
+html[data-theme="dark"] select option {
+    background-color: rgb(17 24 39) !important;
+    color: rgb(243 244 246) !important;
+}
+
+/* Force styling for stubborn elements */
+* [data-theme="dark"] select option,
+*.dark select option {
+    background: rgb(17 24 39) !important;
+    color: rgb(243 244 246) !important;
+}

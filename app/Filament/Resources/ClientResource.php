@@ -36,7 +36,9 @@ class ClientResource extends Resource
                                     ->label('Client Code')
                                     ->required()
                                     ->unique(ignoreRecord: true)
-                                    ->maxLength(50),
+                                    ->maxLength(50)
+                                    ->default(fn () => Client::generateClientCode())
+                                    ->helperText('Auto-generated but editable: CLT-YYYY-0001 format'),
 
                                 Forms\Components\TextInput::make('name')
                                     ->required()

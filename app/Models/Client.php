@@ -24,6 +24,24 @@ class Client extends Model
         'is_active' => 'boolean',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($client) {
+            if (empty($client->client_code)) {
+                $client->client_code = static::generateClientCode();
+            }
+        });
+    }
+
+    public static function generateClientCode()
+    {
+        $year = date('Y');
+        $count = static::whereYear('created_at', $year)->count() + 1;
+        return 'CLT-' . $year . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+    }
+
     // Relations
     public function invoices() { return $this->hasMany(Invoice::class); }
     public function projects() { return $this->hasMany(Project::class); }

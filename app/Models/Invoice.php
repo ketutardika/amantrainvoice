@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class Invoice extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'invoice_number', 'client_id', 'project_id', 'user_id',
+        'invoice_number', 'client_id', 'project_id', 'user_id', 'tax_id',
         'invoice_date', 'due_date', 'status',
         'subtotal', 'tax_amount', 'discount_amount', 'total_amount',
         'paid_amount', 'balance_due',
@@ -36,9 +37,44 @@ class Invoice extends Model
         'custom_fields' => 'array',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($invoice) {
+            if (empty($invoice->invoice_number)) {
+                $invoice->invoice_number = static::generateInvoiceNumber();
+            }
+        });
+    }
+
+    public static function generateInvoiceNumber()
+    {
+        $year = Carbon::now()->format('Y');
+        $month = Carbon::now()->format('m');
+        $invoicePrefix = InvoiceSettings::getValue('invoice_prefix', 'INV');
+        $prefix = "{$invoicePrefix}-{$year}-{$month}-";
+        
+        // Find the latest invoice number for current month
+        $latestInvoice = static::where('invoice_number', 'like', $prefix . '%')
+            ->orderByRaw('CAST(SUBSTRING(invoice_number, -5) AS UNSIGNED) DESC')
+            ->first();
+            
+        if ($latestInvoice) {
+            // Extract the last 5 digits and increment
+            $lastNumber = (int) substr($latestInvoice->invoice_number, -5);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+        
+        return $prefix . str_pad($newNumber, 5, '0', STR_PAD_LEFT);
+    }
+
     public function client() { return $this->belongsTo(Client::class); }
     public function project() { return $this->belongsTo(Project::class); }
     public function user() { return $this->belongsTo(User::class); }
+    public function tax() { return $this->belongsTo(Tax::class); }
     public function items() { return $this->hasMany(InvoiceItem::class)->orderBy('sort_order'); }
     public function payments() { return $this->hasMany(Payment::class); }
     public function statusLogs() { return $this->hasMany(InvoiceStatusLog::class)->orderBy('created_at', 'desc'); }

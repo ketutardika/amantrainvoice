@@ -33,21 +33,17 @@ class InvoiceResource extends Resource
             ->schema([
                 Section::make('Invoice Details')
                     ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                Forms\Components\TextInput::make('invoice_number')
-                                    ->required()
-                                    ->unique(ignoreRecord: true)
-                                    ->maxLength(255),
+                        Forms\Components\TextInput::make('invoice_number')
+                            ->label('Invoice Number')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255)
+                            ->default(fn () => Invoice::generateInvoiceNumber())
+                            ->helperText('Auto-generated but editable: {PREFIX}-YYYY-MM-00001 format (configurable in Settings)')
+                            ->columnSpanFull(),
 
-                                Forms\Components\Select::make('user_id')
-                                    ->label('Created By')
-                                    ->relationship('user', 'name')
-                                    ->default(auth()->id())
-                                    ->required()
-                                    ->searchable()
-                                    ->preload(),
-                            ]),
+                        Forms\Components\Hidden::make('user_id')
+                            ->default(auth()->id()),
 
                         Grid::make(2)
                             ->schema([
@@ -133,7 +129,15 @@ class InvoiceResource extends Resource
                                                 static::updateTotalsFromItems($set, $get);
                                             }),
 
-                                        Forms\Components\TextInput::make('unit')
+                                        Forms\Components\Select::make('unit')
+                                            ->options([
+                                                'pcs' => 'Pieces',
+                                                'hours' => 'Hours',
+                                                'days' => 'Days',
+                                                'package' => 'Package',
+                                                'month' => 'Month',
+                                                'year' => 'Year',
+                                            ])
                                             ->default('pcs')
                                             ->required(),
 
@@ -187,13 +191,42 @@ class InvoiceResource extends Resource
                                         static::updateTotals($set, $get);
                                     }),
 
-                                Forms\Components\TextInput::make('tax_amount')
-                                    ->numeric()
-                                    ->default(0)
+                                Forms\Components\Select::make('tax_id')
+                                    ->label('Tax')
+                                    ->relationship('tax', 'name')
+                                    ->options(function () {
+                                        return \App\Models\Tax::where('is_active', true)
+                                            ->pluck('name', 'id')
+                                            ->map(function ($name, $id) {
+                                                $tax = \App\Models\Tax::find($id);
+                                                return "{$name} ({$tax->rate}%)";
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
                                     ->live()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        if ($state) {
+                                            $tax = \App\Models\Tax::find($state);
+                                            if ($tax) {
+                                                $subtotal = floatval($get('subtotal')) ?: 0;
+                                                $taxAmount = ($subtotal * $tax->rate) / 100;
+                                                $set('tax_amount', $taxAmount);
+                                            }
+                                        } else {
+                                            $set('tax_amount', 0);
+                                        }
                                         static::updateTotals($set, $get);
                                     }),
+
+                                Forms\Components\TextInput::make('tax_amount')
+                                    ->label('Tax Amount')
+                                    ->numeric()
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->live()
+                                    ->default(0),
 
                                 Forms\Components\TextInput::make('total_amount')
                                     ->numeric()
@@ -228,10 +261,12 @@ class InvoiceResource extends Resource
                 Section::make('Notes & Terms')
                     ->schema([
                         Forms\Components\Textarea::make('notes')
-                            ->rows(3),
+                            ->rows(3)
+                            ->default(fn () => \App\Models\InvoiceSettings::getValue('default_notes')),
 
                         Forms\Components\Textarea::make('terms_conditions')
-                            ->rows(3),
+                            ->rows(3)
+                            ->default(fn () => \App\Models\InvoiceSettings::getValue('default_terms_conditions')),
                     ])
                     ->columns(2),
             ]);
