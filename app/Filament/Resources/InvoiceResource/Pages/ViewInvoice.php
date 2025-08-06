@@ -14,38 +14,11 @@ class ViewInvoice extends ViewRecord
     {
         return [
             Actions\EditAction::make(),
-            Actions\Action::make('download_pdf')
-                ->label('Download PDF')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->action(function () {
-                    try {
-                        $record = $this->record;
-                        $record->load(['client', 'project', 'items', 'user']);
-                        
-                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('invoices.pdf', compact('record'))
-                            ->setPaper('a4', 'portrait')
-                            ->setOptions([
-                                'defaultFont' => 'DejaVu Sans',
-                                'isRemoteEnabled' => false,
-                                'isHtml5ParserEnabled' => false, // Disable HTML5 parser
-                                'isFontSubsettingEnabled' => true,
-                                'isPhpEnabled' => false,
-                            ]);
-                        
-                        return response()->streamDownload(
-                            fn () => print($pdf->output()),
-                            "invoice-{$record->invoice_number}.pdf",
-                            ['Content-Type' => 'application/pdf']
-                        );
-                    } catch (\Exception $e) {
-                        \Filament\Notifications\Notification::make()
-                            ->title('PDF Generation Failed')
-                            ->body('Unable to generate PDF: ' . $e->getMessage())
-                            ->danger()
-                            ->send();
-                        return null;
-                    }
-                }),
+            Actions\Action::make('view_pdf')
+                ->label('View PDF')
+                ->icon('heroicon-o-document-text')
+                ->url(fn () => route('invoices.pdf', $this->record))
+                ->openUrlInNewTab(),
         ];
     }
 

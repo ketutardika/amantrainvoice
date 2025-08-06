@@ -123,6 +123,7 @@
             width: 48%;
             vertical-align: top;
             padding-left: 1%;
+            text-align: right;
         }
         
         .info-box {
@@ -436,16 +437,12 @@
             <table class="header-table">
                 <tr>
                     <td class="header-left">
-                        <div class="company-name">{{ config('app.name', 'Your Company') }}</div>
+                        <div class="company-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
                         <div class="company-tagline">Invoice Management System</div>
-                        <div class="company-info">
-                            {{ $record->user->name ?? 'System Administrator' }}<br>
-                            {{ $record->user->email ?? 'admin@company.com' }}
-                        </div>
                     </td>
                     <td class="header-right">
-                        <div class="invoice-title">INVOICE</div>
-                        <div class="invoice-number"># {{ $record->invoice_number }}</div>
+                        <div class="invoice-title">INVOICE</div>                        
+                        <div class="invoice-number">#{{ $record->invoice_number }}</div>
                         <div class="date-box">
                             <div class="date-line">
                                 <strong>Date:</strong> {{ $record->invoice_date->format('M d, Y') }}
@@ -465,7 +462,25 @@
                 <tr>
                     <td class="content-left">
                         <div class="info-box">
-                            <div class="section-title">Bill To</div>
+                            <div class="section-title">FROM</div>
+                            <div class="client-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
+                            <div class="client-info">
+                                {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com') }}
+                                @if(\App\Models\InvoiceSettings::getValue('company_phone'))
+                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_phone') }}
+                                @endif
+                                @if(\App\Models\InvoiceSettings::getValue('company_website'))
+                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_website') }}
+                                @endif
+                                @if(\App\Models\InvoiceSettings::getValue('company_address'))
+                                    <br><br>{!! \App\Models\InvoiceSettings::getValue('company_address') !!}
+                                @endif
+                            </div>
+                        </div>
+                    </td>
+                    <td class="content-right">
+                        <div class="info-box">
+                            <div class="section-title">BILL TO</div>
                             <div class="client-name">{{ $record->client->name }}</div>
                             @if($record->client->company_name)
                                 <div class="client-company">{{ $record->client->company_name }}</div>
@@ -485,25 +500,20 @@
                                     @endif
                                 @endif
                             </div>
-                        </div>
-                    </td>
-                    <td class="content-right">
-                        <div class="info-box">
-                            <div class="section-title">Invoice Details</div>
                             
                             @if($record->project)
-                            <div class="detail-line">
+                            <!-- <div class="detail-line" style="margin-top: 8px;">
                                 <span class="detail-label">Project:</span>
                                 <span class="detail-value">{{ $record->project->name }}</span>
-                            </div>
+                            </div> -->
                             @endif
                             
-                            <div class="detail-line">
+                            <!-- <div class="detail-line">
                                 <span class="detail-label">Status:</span>
                                 <span class="status-badge status-{{ $record->status }}">
                                     {{ ucfirst(str_replace('_', ' ', $record->status)) }}
                                 </span>
-                            </div>
+                            </div> -->
                         </div>
                     </td>
                 </tr>

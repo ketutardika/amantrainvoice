@@ -334,9 +334,17 @@ class InvoiceController extends Controller
     {
         $invoice->load(['client', 'project', 'user', 'items']);
         
-        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+        $pdf = Pdf::loadView('invoices.pdf', ['record' => $invoice])
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'defaultFont' => 'DejaVu Sans',
+                'isRemoteEnabled' => false,
+                'isHtml5ParserEnabled' => false,
+                'isFontSubsettingEnabled' => true,
+                'isPhpEnabled' => false,
+            ]);
         
-        return $pdf->download('invoice-' . $invoice->invoice_number . '.pdf');
+        return $pdf->stream('invoice-' . $invoice->invoice_number . '.pdf');
     }
 
     /**

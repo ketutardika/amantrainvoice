@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Models\InvoiceSettings;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -27,6 +28,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName(InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')))
+            ->darkMode(false)
             ->colors([
                 'primary' => Color::Amber,
             ])
