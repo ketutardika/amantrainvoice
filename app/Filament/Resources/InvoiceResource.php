@@ -109,6 +109,10 @@ class InvoiceResource extends Resource
                     ->schema([
                         Repeater::make('items')
                             ->relationship()
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                static::updateTotals($set, $get);
+                            })
                             ->schema([
                                 Grid::make(6)
                                     ->schema([
@@ -120,9 +124,13 @@ class InvoiceResource extends Resource
                                             ->numeric()
                                             ->required()
                                             ->default(1)
-                                            ->reactive()
+                                            ->live()
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                $set('total_price', $state * $get('unit_price'));
+                                                $quantity = floatval($state) ?: 0;
+                                                $unitPrice = floatval($get('unit_price')) ?: 0;
+                                                $totalPrice = $quantity * $unitPrice;
+                                                $set('total_price', $totalPrice);
+                                                static::updateTotalsFromItems($set, $get);
                                             }),
 
                                         Forms\Components\TextInput::make('unit')
@@ -132,15 +140,20 @@ class InvoiceResource extends Resource
                                         Forms\Components\TextInput::make('unit_price')
                                             ->numeric()
                                             ->required()
-                                            ->reactive()
+                                            ->live()
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                $set('total_price', $state * $get('quantity'));
+                                                $unitPrice = floatval($state) ?: 0;
+                                                $quantity = floatval($get('quantity')) ?: 0;
+                                                $totalPrice = $unitPrice * $quantity;
+                                                $set('total_price', $totalPrice);
+                                                static::updateTotalsFromItems($set, $get);
                                             }),
 
                                         Forms\Components\TextInput::make('total_price')
                                             ->numeric()
                                             ->disabled()
-                                            ->dehydrated(),
+                                            ->dehydrated()
+                                            ->live(),
                                     ]),
 
                                 Forms\Components\Textarea::make('description')
@@ -158,32 +171,52 @@ class InvoiceResource extends Resource
                                 Forms\Components\TextInput::make('subtotal')
                                     ->numeric()
                                     ->disabled()
-                                    ->dehydrated(false),
+                                    ->dehydrated()
+                                    ->live()
+                                    ->afterStateHydrated(function ($component, $state, callable $get) {
+                                        $items = $get('items') ?? [];
+                                        $subtotal = collect($items)->sum('total_price');
+                                        $component->state($subtotal);
+                                    }),
 
                                 Forms\Components\TextInput::make('discount_amount')
                                     ->numeric()
-                                    ->default(0),
+                                    ->default(0)
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        static::updateTotals($set, $get);
+                                    }),
 
                                 Forms\Components\TextInput::make('tax_amount')
                                     ->numeric()
-                                    ->default(0),
+                                    ->default(0)
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        static::updateTotals($set, $get);
+                                    }),
 
                                 Forms\Components\TextInput::make('total_amount')
                                     ->numeric()
                                     ->disabled()
-                                    ->dehydrated(false),
+                                    ->dehydrated()
+                                    ->live(),
                             ]),
 
                         Grid::make(3)
                             ->schema([
                                 Forms\Components\TextInput::make('paid_amount')
                                     ->numeric()
-                                    ->default(0),
+                                    ->default(0)
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        static::updateTotals($set, $get);
+                                    }),
 
                                 Forms\Components\TextInput::make('balance_due')
                                     ->numeric()
                                     ->disabled()
-                                    ->dehydrated(false),
+                                    ->dehydrated()
+                                    ->live(),
 
                                 Forms\Components\TextInput::make('exchange_rate')
                                     ->numeric()
@@ -304,12 +337,18 @@ class InvoiceResource extends Resource
                         ->icon('heroicon-o-arrow-down-tray')
                         ->action(function (Invoice $record) {
                             try {
-                                // Load invoice with related data
+                                $record = $this->record;
                                 $record->load(['client', 'project', 'items', 'user']);
                                 
-                                // Generate PDF using DomPDF
                                 $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('invoices.pdf', compact('record'))
-                                    ->setPaper('a4', 'portrait');
+                                    ->setPaper('a4', 'portrait')
+                                    ->setOptions([
+                                        'defaultFont' => 'DejaVu Sans',
+                                        'isRemoteEnabled' => false,
+                                        'isHtml5ParserEnabled' => false, // Disable HTML5 parser
+                                        'isFontSubsettingEnabled' => true,
+                                        'isPhpEnabled' => false,
+                                    ]);
                                 
                                 return response()->streamDownload(
                                     fn () => print($pdf->output()),
@@ -358,7 +397,49 @@ class InvoiceResource extends Resource
         return [
             'index' => Pages\ListInvoices::route('/'),
             'create' => Pages\CreateInvoice::route('/create'),
+            'view' => Pages\ViewInvoice::route('/{record}'),
             'edit' => Pages\EditInvoice::route('/{record}/edit'),
         ];
+    }
+
+    public static function updateTotalsFromItems(callable $set, callable $get): void
+    {
+        // This function is called from item level, we need to get the parent form state
+        // In Filament, we need to work with the form's global state
+        $items = $get('../../items') ?? [];
+        $subtotal = collect($items)->sum(function ($item) {
+            return floatval($item['total_price'] ?? 0);
+        });
+        
+        $set('../../subtotal', $subtotal);
+        
+        // Get other totals
+        $discountAmount = floatval($get('../../discount_amount')) ?: 0;
+        $taxAmount = floatval($get('../../tax_amount')) ?: 0;
+        $totalAmount = $subtotal - $discountAmount + $taxAmount;
+        $paidAmount = floatval($get('../../paid_amount')) ?: 0;
+        $balanceDue = $totalAmount - $paidAmount;
+        
+        $set('../../total_amount', $totalAmount);
+        $set('../../balance_due', $balanceDue);
+    }
+    
+    public static function updateTotals(callable $set, callable $get): void
+    {
+        $items = $get('items') ?? [];
+        $subtotal = collect($items)->sum(function ($item) {
+            return floatval($item['total_price'] ?? 0);
+        });
+        
+        $discountAmount = floatval($get('discount_amount')) ?: 0;
+        $taxAmount = floatval($get('tax_amount')) ?: 0;
+        $paidAmount = floatval($get('paid_amount')) ?: 0;
+        
+        $totalAmount = $subtotal - $discountAmount + $taxAmount;
+        $balanceDue = $totalAmount - $paidAmount;
+        
+        $set('subtotal', $subtotal);
+        $set('total_amount', $totalAmount);
+        $set('balance_due', $balanceDue);
     }    
 }

@@ -16,10 +16,10 @@ class TaxesSeeder extends Seeder
         $taxes = [
             [
                 'name' => 'PPN (Pajak Pertambahan Nilai)',
-                'code' => 'PPN11',
+                'code' => 'PPN',
                 'rate' => 11.00,
                 'type' => 'percentage',
-                'description' => 'Pajak Pertambahan Nilai 11%',
+                'description' => 'Indonesian Value Added Tax (VAT) at 11%',
                 'is_active' => true
             ],
             [
@@ -27,13 +27,24 @@ class TaxesSeeder extends Seeder
                 'code' => 'PPH23',
                 'rate' => 2.00,
                 'type' => 'percentage',
-                'description' => 'Pajak Penghasilan Pasal 23 (2%)',
+                'description' => 'Indonesian Income Tax Article 23 (2% withholding tax)',
+                'is_active' => true
+            ],
+            [
+                'name' => 'Service Tax',
+                'code' => 'ST',
+                'rate' => 6.00,
+                'type' => 'percentage',
+                'description' => 'Service tax for professional services',
                 'is_active' => false
             ]
         ];
 
         foreach ($taxes as $tax) {
-            Tax::create($tax);
+            Tax::updateOrCreate(
+                ['code' => $tax['code']],
+                $tax
+            );
         }
     }
 }
