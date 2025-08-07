@@ -7,6 +7,7 @@ use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\Payment;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -367,6 +368,112 @@ class InvoiceResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
+                    Tables\Actions\Action::make('test')
+                        ->label('Test Action')
+                        ->icon('heroicon-o-check')
+                        ->action(function() {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Test works!')
+                                ->send();
+                        }),
+                    Tables\Actions\Action::make('make_payment')
+                        ->label('Make Payment')
+                        ->icon('heroicon-o-banknotes')
+                        ->color('success')
+                        ->visible(fn (Invoice $record) => !in_array($record->status, ['paid', 'cancelled']))
+                        ->form([
+                            Forms\Components\TextInput::make('payment_number')
+                                ->required()
+                                ->unique(Payment::class, 'payment_number')
+                                ->maxLength(255)
+                                ->default(fn () => 'PAY-' . date('Y') . '-' . str_pad(Payment::count() + 1, 5, '0', STR_PAD_LEFT)),
+
+                            Forms\Components\Hidden::make('invoice_id'),
+
+                            Forms\Components\Hidden::make('client_id'),
+
+                            Forms\Components\Hidden::make('user_id')
+                                ->default(auth()->id()),
+
+                            Grid::make(2)
+                                ->schema([
+                                    Forms\Components\TextInput::make('amount')
+                                        ->numeric()
+                                        ->required()
+                                        ->prefix('IDR')
+                                        ->step(0.01)
+                                        ->default(function (callable $get, $livewire) {
+                                            $record = $livewire->record ?? null;
+                                            return $record ? ($record->balance_due ?? $record->total_amount) : 0;
+                                        }),
+
+                                    Forms\Components\DatePicker::make('payment_date')
+                                        ->required()
+                                        ->default(now()),
+                                ]),
+
+                            Grid::make(2)
+                                ->schema([
+                                    Forms\Components\Select::make('payment_method')
+                                        ->options([
+                                            'cash' => 'Cash',
+                                            'bank_transfer' => 'Bank Transfer',
+                                            'credit_card' => 'Credit Card',
+                                            'debit_card' => 'Debit Card',
+                                            'gopay' => 'GoPay',
+                                            'ovo' => 'OVO',
+                                            'dana' => 'Dana',
+                                            'shopeepay' => 'ShopeePay',
+                                            'other' => 'Other',
+                                        ])
+                                        ->required()
+                                        ->default('bank_transfer'),
+
+                                    Forms\Components\TextInput::make('reference_number')
+                                        ->maxLength(255)
+                                        ->label('Reference/Transaction Number'),
+                                ]),
+
+                            Forms\Components\Select::make('status')
+                                ->options([
+                                    'pending' => 'Pending',
+                                    'verified' => 'Verified',
+                                    'cancelled' => 'Cancelled',
+                                ])
+                                ->default('pending')
+                                ->required(),
+
+                            Forms\Components\FileUpload::make('attachment')
+                                ->label('Payment Proof/Receipt')
+                                ->acceptedFileTypes(['image/*', 'application/pdf'])
+                                ->maxSize(5120)
+                                ->downloadable(),
+
+                            Forms\Components\Textarea::make('notes')
+                                ->rows(3)
+                                ->columnSpanFull(),
+                        ])
+                        ->action(function (Invoice $record, array $data) {
+                            // Set the invoice and client ID
+                            $data['invoice_id'] = $record->id;
+                            $data['client_id'] = $record->client_id;
+                            
+                            // Create the payment
+                            $payment = Payment::create($data);
+
+                            // If payment is verified, update invoice status
+                            if ($payment->status === 'verified') {
+                                $record->updateStatusBasedOnPayments();
+                            }
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('Payment Created Successfully')
+                                ->body("Payment #{$payment->payment_number} has been created.")
+                                ->success()
+                                ->send();
+                        })
+                        ->modalHeading('Create Payment')
+                        ->modalWidth('lg'),
                     Tables\Actions\Action::make('download_pdf')
                         ->label('Download PDF')
                         ->icon('heroicon-o-arrow-down-tray')

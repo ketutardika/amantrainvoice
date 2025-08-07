@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -189,6 +190,37 @@ class InvoiceSettings extends Page implements HasForms, HasActions
                     ])
                     ->columns(3),
 
+                Section::make('Bank Information')
+                    ->description('Bank accounts for payment information')
+                    ->schema([
+                        Repeater::make('bank_accounts')
+                            ->label('Bank Accounts')
+                            ->schema([
+                                Grid::make(2)
+                                    ->schema([
+                                        TextInput::make('bank_name')
+                                            ->label('Bank Name')
+                                            ->required()
+                                            ->placeholder('e.g., Bank BCA'),
+                                        
+                                        TextInput::make('account_number')
+                                            ->label('Account Number')
+                                            ->required()
+                                            ->placeholder('e.g., 1234-5678-9012'),
+                                    ]),
+                                
+                                TextInput::make('account_holder')
+                                    ->label('Account Holder Name')
+                                    ->required()
+                                    ->placeholder('e.g., PT Company Name')
+                                    ->columnSpanFull(),
+                            ])
+                            ->defaultItems(0)
+                            ->addActionLabel('Add Bank Account')
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(1),
+
                 Section::make('Terms & Conditions')
                     ->description('Default terms and conditions for invoices')
                     ->schema([
@@ -223,6 +255,11 @@ class InvoiceSettings extends Page implements HasForms, HasActions
         $data = $this->form->getState();
 
         foreach ($data as $key => $value) {
+            // Encode array data as JSON for bank_accounts
+            if ($key === 'bank_accounts') {
+                $value = json_encode($value);
+            }
+            
             InvoiceSettingsModel::setValue(
                 $key, 
                 $value, 
@@ -244,7 +281,7 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'invoice_prefix', 'default_currency', 'default_payment_terms', 'default_tax_rate', 'late_fee_percentage',
             'invoice_template', 'date_format', 'invoice_footer_text',
             'auto_send_invoice', 'send_payment_reminders', 'auto_follow_up', 'reminder_days_before', 'followup_days_after',
-            'default_terms_conditions', 'default_notes'
+            'default_terms_conditions', 'default_notes', 'bank_accounts'
         ];
 
         $data = [];
@@ -254,6 +291,9 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             // Convert string booleans to actual booleans for toggles
             if (in_array($key, ['auto_send_invoice', 'send_payment_reminders', 'auto_follow_up'])) {
                 $data[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            } elseif ($key === 'bank_accounts') {
+                // Decode JSON array for bank accounts
+                $data[$key] = $value ? json_decode($value, true) : [];
             } else {
                 $data[$key] = $value;
             }
@@ -270,6 +310,7 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'default_payment_terms', 'default_tax_rate', 'late_fee_percentage', 'reminder_days_before', 'followup_days_after' => 'number',
             'auto_send_invoice', 'send_payment_reminders', 'auto_follow_up' => 'boolean',
             'company_address', 'invoice_footer_text', 'default_terms_conditions', 'default_notes' => 'textarea',
+            'bank_accounts' => 'json',
             default => 'text'
         };
     }
@@ -297,6 +338,7 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'followup_days_after' => 'Days after due date to send follow-up',
             'default_terms_conditions' => 'Default terms and conditions text',
             'default_notes' => 'Default notes included in invoices',
+            'bank_accounts' => 'Bank account information for payment instructions',
             default => 'Invoice setting'
         };
     }

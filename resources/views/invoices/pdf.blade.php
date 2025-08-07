@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Invoice {{ $record->invoice_number }}</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        
         @page {
             margin: 20mm;
             size: A4 portrait;
@@ -16,10 +18,11 @@
         }
         
         body {
-            font-family: DejaVu Sans, Arial, sans-serif;
+            font-family: 'Roboto', -webkit-system-font, DejaVu Sans, Arial, sans-serif;
             font-size: 11px;
             line-height: 1.3;
             color: #333;
+            font-weight: 400;
         }
         
         .container {
@@ -144,12 +147,14 @@
             font-size: 11px;
             font-weight: bold;
             color: #111;
+            text-transform: uppercase;
         }
         
         .client-company {
             font-size: 11px;
             color: #6366f1;
             font-weight: bold;
+            text-transform: uppercase;
         }
         
         .client-info {
@@ -159,15 +164,12 @@
         }
         
         .detail-line {
-            margin-bottom: 4px;
             font-size: 11px;
         }
         
         .detail-label {
             font-weight: bold;
             color: #374151;
-            display: inline-block;
-            width: 50px;
         }
         
         .detail-value {
@@ -176,18 +178,14 @@
         }
         
         .status-badge {
-            background: #f3f4f6;
             color: #374151;
-            padding: 1px 4px;
-            font-size: 8px;
             font-weight: bold;
             text-transform: uppercase;
-            border: 1px solid #d1d5db;
         }
         
-        .status-draft { background: #f3f4f6; color: #374151; }
-        .status-sent { background: #dbeafe; color: #1d4ed8; }
-        .status-paid { background: #d1fae5; color: #065f46; }
+        .status-draft { color: #374151; }
+        .status-sent { color: #1d4ed8; }
+        .status-paid { color: #065f46; }
         
         /* Items Section */
         .items-section {
@@ -493,6 +491,16 @@
             background: #f9fafb;
             border: 1px solid #e5e7eb;
         }
+        
+        /* WhatsApp Link Styling */
+        .whatsapp-link {
+            color: #666;
+            text-decoration: none;
+        }
+        
+        .whatsapp-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -503,6 +511,12 @@
                 <tr>
                     <td class="header-left">
                         <div class="invoice-title">INVOICE</div>
+                        <div class="detail-line">
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-{{ $record->status }}">
+                                {{ ucfirst(str_replace('_', ' ', $record->status)) }}
+                            </span>
+                        </div>
                     </td>
                     <td class="header-center">
                         <div class="company-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
@@ -513,19 +527,19 @@
                                 {{ $record->invoice_date->format('M d, Y') }}
                             </div>
                         </div>
-                        <div class="invoice-number">#{{ $record->invoice_number }}</div> 
+                        <div class="invoice-number">#{{ $record->invoice_number }}</div>
                     </td>
                 </tr>
             </table>
         </div>
 
         <!-- Content Section -->
-        <div class="content-section">
+        <div class="content-section">            
             <table class="content-table">
                 <tr>
                     <td class="content-left">
                         <div class="info-box">
-                            <div class="section-title">Bill To</div>
+                            <div class="section-title">Bill To:</div>
                             <div class="client-name">{{ $record->client->name }}</div>
                             @if($record->client->company_name)
                                 <div class="client-company">{{ $record->client->company_name }}</div>
@@ -533,7 +547,7 @@
                             <div class="client-info">
                                 {{ $record->client->email }}
                                 @if($record->client->phone)
-                                    <br>{{ $record->client->phone }}
+                                    <br><a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $record->client->phone) }}" class="whatsapp-link">{{ $record->client->phone }}</a>
                                 @endif
                                 <!-- @if($record->client->address)
                                     <br>{!! $record->client->address !!}
@@ -552,23 +566,16 @@
                                 <span class="detail-value">{{ $record->project->name }}</span>
                             </div> -->
                             @endif
-                            
-                            <!-- <div class="detail-line">
-                                <span class="detail-label">Status:</span>
-                                <span class="status-badge status-{{ $record->status }}">
-                                    {{ ucfirst(str_replace('_', ' ', $record->status)) }}
-                                </span>
-                            </div> -->
                         </div>
                     </td>
                     <td class="content-right">
                         <div class="info-box">
-                            <div class="section-title">From</div>
+                            <div class="section-title">From:</div>
                             <div class="client-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
                             <div class="client-info">
                                 {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com') }}
                                 @if(\App\Models\InvoiceSettings::getValue('company_phone'))
-                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_phone') }}
+                                    <br><a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', \App\Models\InvoiceSettings::getValue('company_phone')) }}" class="whatsapp-link">{{ \App\Models\InvoiceSettings::getValue('company_phone') }}</a>
                                 @endif
                                 @if(\App\Models\InvoiceSettings::getValue('company_website'))
                                     <br>{{ \App\Models\InvoiceSettings::getValue('company_website') }}
@@ -696,6 +703,12 @@
         </div>
 
         <!-- Payment Information Section -->
+        @php
+            $bankAccountsJson = \App\Models\InvoiceSettings::getValue('bank_accounts');
+            $bankAccounts = $bankAccountsJson ? json_decode($bankAccountsJson, true) : [];
+        @endphp
+        
+        @if(!empty($bankAccounts))
         <div class="payment-section">
             <div class="payment-title-section">
                 <div class="payment-main-title">Informasi Pembayaran</div>
@@ -703,28 +716,29 @@
             </div>
             
             <table class="payment-table">
-                <tr>
-                    <td class="payment-left">
-                        <div class="bank-info">
-                            <div class="bank-title">Bank BCA</div>
-                            <div class="bank-detail">
-                                No. Rek: xxxx-xxxx-xxxx<br>
-                                A/N: [Nama Anda]
+                @foreach($bankAccounts as $index => $bank)
+                    @if($index % 2 == 0)
+                    <tr>
+                    @endif
+                        <td class="{{ $index % 2 == 0 ? 'payment-left' : 'payment-right' }}">
+                            <div class="bank-info">
+                                <div class="bank-title">{{ $bank['bank_name'] ?? '' }}</div>
+                                <div class="bank-detail">
+                                    No. Rek: {{ $bank['account_number'] ?? '' }}<br>
+                                    A/N: {{ $bank['account_holder'] ?? '' }}
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td class="payment-right">
-                        <div class="bank-info">
-                            <div class="bank-title">Bank Mandiri</div>
-                            <div class="bank-detail">
-                                No. Rek: xxxx-xxxx-xxxx<br>
-                                A/N: [Nama Anda]
-                            </div>
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+                    @if($index % 2 == 1 || $index == count($bankAccounts) - 1)
+                        @if($index % 2 == 0 && $index == count($bankAccounts) - 1)
+                            <td class="payment-right"></td>
+                        @endif
+                    </tr>
+                    @endif
+                @endforeach
             </table>
         </div>
+        @endif
 
         <!-- Notes Section -->
         @if($record->notes || $record->terms_conditions)

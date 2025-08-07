@@ -63,7 +63,11 @@ class PaymentResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->required()
-                                    ->disabled(fn (callable $get) => !empty($get('invoice_id'))),
+                                    ->disabled(fn (callable $get) => !empty($get('invoice_id')))
+                                    ->dehydrated(),
+
+                                Forms\Components\Hidden::make('user_id')
+                                    ->default(auth()->id()),
                             ]),
 
                         Grid::make(3)
@@ -271,6 +275,11 @@ class PaymentResource extends Resource
                                 'verified_at' => now(),
                                 'verified_by' => auth()->id(),
                             ]);
+
+                            // Update invoice status based on payments
+                            if ($record->invoice) {
+                                $record->invoice->updateStatusBasedOnPayments();
+                            }
                         })
                         ->requiresConfirmation(),
                     Tables\Actions\Action::make('download_receipt')
@@ -297,6 +306,11 @@ class PaymentResource extends Resource
                                         'verified_at' => now(),
                                         'verified_by' => auth()->id(),
                                     ]);
+
+                                    // Update invoice status based on payments
+                                    if ($record->invoice) {
+                                        $record->invoice->updateStatusBasedOnPayments();
+                                    }
                                 }
                             });
                         })
