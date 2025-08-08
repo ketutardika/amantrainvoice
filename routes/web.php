@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ViewInvoice;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,4 +22,5 @@ Route::get('/', function () {
 // PDF Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'generatePdf'])->name('invoices.pdf');
+    Route::get('/invoices/{invoice}/view', ViewInvoice::class)->name('invoices.view');
 });

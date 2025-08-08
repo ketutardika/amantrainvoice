@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <title>Invoice {{ $record->invoice_number }}</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-        
         @page {
             margin: 20mm;
             size: A4 portrait;
@@ -18,7 +16,7 @@
         }
         
         body {
-            font-family: 'Roboto', -webkit-system-font, DejaVu Sans, Arial, sans-serif;
+            font-family: DejaVu Sans, Arial, sans-serif;
             font-size: 11px;
             line-height: 1.3;
             color: #333;
@@ -519,7 +517,9 @@
                         </div>
                     </td>
                     <td class="header-center">
-                        <div class="company-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
+                        <div class="company-logo">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/amantra_logo.png'))) }}" alt="Company Logo" style="height: 45px; width: auto;">
+                        </div>
                     </td>
                     <td class="header-right">
                         <div class="date-box">

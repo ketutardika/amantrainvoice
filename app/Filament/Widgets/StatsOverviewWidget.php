@@ -13,17 +13,17 @@ class StatsOverviewWidget extends BaseWidget
 {
     protected function getStats(): array
     {
-        $totalRevenue = Invoice::sum('total_amount');
+        $totalRevenue = Invoice::sum('paid_amount');
         $paidRevenue = Invoice::sum('paid_amount');
         $outstandingRevenue = Invoice::whereIn('status', ['sent', 'viewed', 'partial_paid', 'overdue'])->sum('balance_due');
         
         $thisMonthRevenue = Invoice::whereMonth('invoice_date', now()->month)
             ->whereYear('invoice_date', now()->year)
-            ->sum('total_amount');
+            ->sum('paid_amount');
             
         $lastMonthRevenue = Invoice::whereMonth('invoice_date', now()->subMonth()->month)
             ->whereYear('invoice_date', now()->subMonth()->year)
-            ->sum('total_amount');
+            ->sum('paid_amount');
             
         $revenueChange = $lastMonthRevenue > 0 ? 
             round((($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1) : 0;
@@ -44,6 +44,11 @@ class StatsOverviewWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
+            Stat::make('Total Invoice', Invoice::count())
+                ->description('Total number of invoices')
+                ->descriptionIcon('heroicon-m-document-text')
+                ->color('info'),
+
             Stat::make('Total Clients', Client::where('is_active', true)->count())
                 ->description('Active clients')
                 ->descriptionIcon('heroicon-m-users')
@@ -52,12 +57,7 @@ class StatsOverviewWidget extends BaseWidget
             Stat::make('Overdue Invoices', Invoice::where('status', 'overdue')->count())
                 ->description('Requires immediate attention')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
-                ->color('danger'),
-
-            Stat::make('Active Projects', Project::where('status', 'active')->count())
-                ->description('Currently running projects')
-                ->descriptionIcon('heroicon-m-briefcase')
-                ->color('info'),
+                ->color('danger'),            
         ];
     }
 }
