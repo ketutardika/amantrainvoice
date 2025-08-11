@@ -37,6 +37,11 @@
             border-bottom: 1px solid #6366f1;
             padding-bottom: 15px;
         }
+
+        .company-logo p{
+            font-size:11px;
+            color:#666;
+        }
         
         .header-table {
             width: 100%;
@@ -467,17 +472,17 @@
         }
         
         .thank-you {
-            font-size: 11px;
-            font-weight: bold;
-            color: #111;
-            margin-bottom: 6px;
+            font-size: 8px;
+            color: #666;
+            margin-rgba(8, 8, 8, 1)om: 6px;
         }
         
         .generated {
-            font-size: 8px;
+            font-size: 6px;
+            margin-top: 10px;
             color: #999;
             background: #f9fafb;
-            padding: 3px 6px;
+            padding: 3px 3px;
             border: 1px solid #e5e7eb;
             display: inline-block;
         }
@@ -518,7 +523,8 @@
                     </td>
                     <td class="header-center">
                         <div class="company-logo">
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/amantra_logo.png'))) }}" alt="Company Logo" style="height: 45px; width: auto;">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo_amantrabali-light-02.png'))) }}" alt="Company Logo" style="height: 55px; width: auto;">
+                            <p>Crafting Digital Excellence</p>
                         </div>
                     </td>
                     <td class="header-right">
@@ -711,8 +717,8 @@
         @if(!empty($bankAccounts))
         <div class="payment-section">
             <div class="payment-title-section">
-                <div class="payment-main-title">Informasi Pembayaran</div>
-                <div class="payment-subtitle">Silakan transfer ke salah satu rekening berikut:</div>
+                <div class="payment-main-title">Payment Information</div>
+                <div class="payment-subtitle">Please transfer to one of the following accounts:</div>
             </div>
             
             <table class="payment-table">
@@ -770,7 +776,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <div class="thank-you">{{ \App\Models\InvoiceSettings::getValue('invoice_footer_text', 'Thank you for your business!') }}</div>
+            <div class="thank-you">{!! \App\Models\InvoiceSettings::getValue('invoice_footer_text', 'Thank you for your business!') !!}</div>
             <div class="generated">Generated on {{ now()->format('M d, Y \a\t g:i A') }}</div>
         </div>
     </div>
