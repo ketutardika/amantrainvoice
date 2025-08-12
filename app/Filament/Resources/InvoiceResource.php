@@ -106,10 +106,25 @@ class InvoiceResource extends Resource
                     ->schema([
                         Repeater::make('items')
                             ->relationship()
-                            ->live()
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                 static::updateTotals($set, $get);
                             })
+                            ->addAction(
+                                fn ($action) => $action->after(function (callable $set, callable $get) {
+                                    static::updateTotals($set, $get);
+                                })
+                            )
+                            ->deleteAction(
+                                fn ($action) => $action->after(function (callable $set, callable $get) {
+                                    static::updateTotals($set, $get);
+                                })
+                            )
+                            ->reorderAction(
+                                fn ($action) => $action->after(function (callable $set, callable $get) {
+                                    static::updateTotals($set, $get);
+                                })
+                            )
                             ->schema([
                                 Grid::make(6)
                                     ->schema([
@@ -127,7 +142,26 @@ class InvoiceResource extends Resource
                                                 $unitPrice = floatval($get('unit_price')) ?: 0;
                                                 $totalPrice = $quantity * $unitPrice;
                                                 $set('total_price', $totalPrice);
-                                                static::updateTotalsFromItems($set, $get);
+                                                
+                                                // Update parent form totals
+                                                $items = $get('../../items') ?? [];
+                                                $subtotal = collect($items)->sum(function ($item) use ($totalPrice, $get) {
+                                                    if ($item === $get('../')) {
+                                                        return $totalPrice; // Use updated value for current item
+                                                    }
+                                                    return floatval($item['total_price'] ?? 0);
+                                                });
+                                                
+                                                $discountAmount = floatval($get('../../discount_amount')) ?: 0;
+                                                $taxAmount = floatval($get('../../tax_amount')) ?: 0;
+                                                $paidAmount = floatval($get('../../paid_amount')) ?: 0;
+                                                
+                                                $totalAmount = $subtotal - $discountAmount + $taxAmount;
+                                                $balanceDue = $totalAmount - $paidAmount;
+                                                
+                                                $set('../../subtotal', $subtotal);
+                                                $set('../../total_amount', $totalAmount);
+                                                $set('../../balance_due', $balanceDue);
                                             }),
 
                                         Forms\Components\Select::make('unit')
@@ -151,7 +185,26 @@ class InvoiceResource extends Resource
                                                 $quantity = floatval($get('quantity')) ?: 0;
                                                 $totalPrice = $unitPrice * $quantity;
                                                 $set('total_price', $totalPrice);
-                                                static::updateTotalsFromItems($set, $get);
+                                                
+                                                // Update parent form totals
+                                                $items = $get('../../items') ?? [];
+                                                $subtotal = collect($items)->sum(function ($item) use ($totalPrice, $get) {
+                                                    if ($item === $get('../')) {
+                                                        return $totalPrice; // Use updated value for current item
+                                                    }
+                                                    return floatval($item['total_price'] ?? 0);
+                                                });
+                                                
+                                                $discountAmount = floatval($get('../../discount_amount')) ?: 0;
+                                                $taxAmount = floatval($get('../../tax_amount')) ?: 0;
+                                                $paidAmount = floatval($get('../../paid_amount')) ?: 0;
+                                                
+                                                $totalAmount = $subtotal - $discountAmount + $taxAmount;
+                                                $balanceDue = $totalAmount - $paidAmount;
+                                                
+                                                $set('../../subtotal', $subtotal);
+                                                $set('../../total_amount', $totalAmount);
+                                                $set('../../balance_due', $balanceDue);
                                             }),
 
                                         Forms\Components\TextInput::make('total_price')
@@ -233,7 +286,15 @@ class InvoiceResource extends Resource
                                     ->numeric()
                                     ->disabled()
                                     ->dehydrated()
-                                    ->live(),
+                                    ->live()
+                                    ->afterStateHydrated(function ($component, $state, callable $get) {
+                                        $items = $get('items') ?? [];
+                                        $subtotal = collect($items)->sum('total_price');
+                                        $discountAmount = floatval($get('discount_amount')) ?: 0;
+                                        $taxAmount = floatval($get('tax_amount')) ?: 0;
+                                        $totalAmount = $subtotal - $discountAmount + $taxAmount;
+                                        $component->state($totalAmount);
+                                    }),
                             ]),
 
                         Grid::make(3)
@@ -250,7 +311,17 @@ class InvoiceResource extends Resource
                                     ->numeric()
                                     ->disabled()
                                     ->dehydrated()
-                                    ->live(),
+                                    ->live()
+                                    ->afterStateHydrated(function ($component, $state, callable $get) {
+                                        $items = $get('items') ?? [];
+                                        $subtotal = collect($items)->sum('total_price');
+                                        $discountAmount = floatval($get('discount_amount')) ?: 0;
+                                        $taxAmount = floatval($get('tax_amount')) ?: 0;
+                                        $paidAmount = floatval($get('paid_amount')) ?: 0;
+                                        $totalAmount = $subtotal - $discountAmount + $taxAmount;
+                                        $balanceDue = $totalAmount - $paidAmount;
+                                        $component->state($balanceDue);
+                                    }),
 
                                 Forms\Components\TextInput::make('exchange_rate')
                                     ->numeric()
@@ -517,27 +588,6 @@ class InvoiceResource extends Resource
         ];
     }
 
-    public static function updateTotalsFromItems(callable $set, callable $get): void
-    {
-        // This function is called from item level, we need to get the parent form state
-        // In Filament, we need to work with the form's global state
-        $items = $get('../../items') ?? [];
-        $subtotal = collect($items)->sum(function ($item) {
-            return floatval($item['total_price'] ?? 0);
-        });
-        
-        $set('../../subtotal', $subtotal);
-        
-        // Get other totals
-        $discountAmount = floatval($get('../../discount_amount')) ?: 0;
-        $taxAmount = floatval($get('../../tax_amount')) ?: 0;
-        $totalAmount = $subtotal - $discountAmount + $taxAmount;
-        $paidAmount = floatval($get('../../paid_amount')) ?: 0;
-        $balanceDue = $totalAmount - $paidAmount;
-        
-        $set('../../total_amount', $totalAmount);
-        $set('../../balance_due', $balanceDue);
-    }
     
     public static function updateTotals(callable $set, callable $get): void
     {

@@ -84,11 +84,14 @@ class PaymentResource extends Resource
 
                                 Forms\Components\Select::make('payment_method')
                                     ->options([
-                                        'cash' => 'Cash',
                                         'bank_transfer' => 'Bank Transfer',
-                                        'check' => 'Check',
+                                        'cash' => 'Cash',
                                         'credit_card' => 'Credit Card',
-                                        'e_wallet' => 'E-Wallet',
+                                        'debit_card' => 'Debit Card',
+                                        'gopay' => 'GoPay',
+                                        'ovo' => 'OVO',
+                                        'dana' => 'Dana',
+                                        'shopeepay' => 'ShopeePay',
                                         'other' => 'Other',
                                     ])
                                     ->required()
@@ -105,8 +108,7 @@ class PaymentResource extends Resource
                                     ->options([
                                         'pending' => 'Pending',
                                         'verified' => 'Verified',
-                                        'failed' => 'Failed',
-                                        'refunded' => 'Refunded',
+                                        'cancelled' => 'Cancelled',
                                     ])
                                     ->default('pending')
                                     ->required(),
@@ -183,11 +185,11 @@ class PaymentResource extends Resource
                 Tables\Columns\BadgeColumn::make('payment_method')
                     ->label('Method')
                     ->colors([
-                        'success' => 'cash',
                         'primary' => 'bank_transfer',
-                        'warning' => 'check',
+                        'success' => 'cash',
                         'info' => 'credit_card',
-                        'secondary' => 'e_wallet',
+                        'warning' => 'debit_card',
+                        'secondary' => ['gopay', 'ovo', 'dana', 'shopeepay'],
                         'gray' => 'other',
                     ])
                     ->formatStateUsing(fn (string $state): string => ucfirst(str_replace('_', ' ', $state))),
@@ -196,8 +198,7 @@ class PaymentResource extends Resource
                     ->colors([
                         'warning' => 'pending',
                         'success' => 'verified',
-                        'danger' => 'failed',
-                        'gray' => 'refunded',
+                        'danger' => 'cancelled',
                     ])
                     ->formatStateUsing(fn (string $state): string => ucfirst($state)),
 
@@ -229,17 +230,19 @@ class PaymentResource extends Resource
                     ->options([
                         'pending' => 'Pending',
                         'verified' => 'Verified',
-                        'failed' => 'Failed',
-                        'refunded' => 'Refunded',
+                        'cancelled' => 'Cancelled',
                     ]),
 
                 SelectFilter::make('payment_method')
                     ->options([
-                        'cash' => 'Cash',
                         'bank_transfer' => 'Bank Transfer',
-                        'check' => 'Check',
+                        'cash' => 'Cash',
                         'credit_card' => 'Credit Card',
-                        'e_wallet' => 'E-Wallet',
+                        'debit_card' => 'Debit Card',
+                        'gopay' => 'GoPay',
+                        'ovo' => 'OVO',
+                        'dana' => 'Dana',
+                        'shopeepay' => 'ShopeePay',
                         'other' => 'Other',
                     ]),
 

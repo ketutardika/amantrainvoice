@@ -607,7 +607,7 @@
                         <th class="col-desc">Description</th>
                         <th class="col-qty text-center">Qty</th>
                         <th class="col-unit text-center">Unit</th>
-                        <th class="col-price text-right">Price</th>
+                        <th class="col-price text-right">Rate</th>
                         <th class="col-total text-right">Total</th>
                     </tr>
                 </thead>
