@@ -136,7 +136,7 @@ class InvoiceResource extends Resource
                                             ->numeric()
                                             ->required()
                                             ->default(1)
-                                            ->live()
+                                            ->live(onBlur: true)
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 $quantity = floatval($state) ?: 0;
                                                 $unitPrice = floatval($get('unit_price')) ?: 0;
@@ -179,7 +179,7 @@ class InvoiceResource extends Resource
                                         Forms\Components\TextInput::make('unit_price')
                                             ->numeric()
                                             ->required()
-                                            ->live()
+                                            ->live(onBlur: true)
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 $unitPrice = floatval($state) ?: 0;
                                                 $quantity = floatval($get('quantity')) ?: 0;
