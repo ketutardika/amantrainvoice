@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Invoice;
+use Filament\Facades\Filament;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -18,6 +19,7 @@ class RecentInvoicesWidget extends BaseWidget
         return $table
             ->query(
                 Invoice::query()
+                    ->where('company_id', Filament::getTenant()?->id)
                     ->with(['client'])
                     ->latest()
                     ->limit(10)
@@ -64,7 +66,7 @@ class RecentInvoicesWidget extends BaseWidget
                 Tables\Actions\Action::make('view')
                     ->label('View')
                     ->icon('heroicon-m-eye')
-                    ->url(fn (Invoice $record): string => route('filament.admin.resources.invoices.view', $record)),
+                    ->url(fn (Invoice $record): string => route('filament.admin.resources.invoices.view', ['tenant' => Filament::getTenant(), 'record' => $record])),
             ]);
     }
 }

@@ -9,6 +9,11 @@ class ViewInvoice extends Controller
 {
     public function __invoke(Request $request, Invoice $invoice)
     {
+        // Verify the invoice belongs to the authenticated user's company
+        if ($invoice->company_id !== auth()->user()->company_id) {
+            abort(403, 'Unauthorized access to this invoice.');
+        }
+
         try {
             $invoice->load(['client', 'project', 'items', 'user']);
             

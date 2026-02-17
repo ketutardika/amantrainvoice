@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Invoice;
+use Filament\Facades\Filament;
 use Filament\Widgets\ChartWidget;
 use Carbon\Carbon;
 
@@ -13,13 +14,16 @@ class RevenueChartWidget extends ChartWidget
 
     protected function getData(): array
     {
+        $companyId = Filament::getTenant()?->id;
+
         $months = collect();
         for ($i = 11; $i >= 0; $i--) {
             $months->push(now()->subMonths($i));
         }
 
-        $data = $months->map(function ($month) {
-            return Invoice::whereMonth('invoice_date', $month->month)
+        $data = $months->map(function ($month) use ($companyId) {
+            return Invoice::where('company_id', $companyId)
+                ->whereMonth('invoice_date', $month->month)
                 ->whereYear('invoice_date', $month->year)
                 ->sum('total_amount');
         })->toArray();

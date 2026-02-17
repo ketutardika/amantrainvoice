@@ -2,77 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Comprehensive fix for select dropdown options in dark mode */
-
-/* Target all select elements and their options */
+/* Fix native select elements in dark mode */
 .dark select,
-[data-theme="dark"] select {
-    background-color: rgb(17 24 39) !important;
-    color: rgb(243 244 246) !important;
+.dark select option {
+    background-color: rgb(30 41 59) !important;
+    color: rgb(226 232 240) !important;
 }
 
-.dark select option,
-[data-theme="dark"] select option {
-    background-color: rgb(17 24 39) !important;
-    color: rgb(243 244 246) !important;
+/* Filament 3 custom select dropdowns (Alpine/Livewire listbox) */
+.dark [role="listbox"] {
+    background-color: rgb(30 41 59) !important;
 }
 
-/* Filament specific selectors */
-.dark .fi-fo-select select,
-.dark .fi-fo-select select option {
-    background-color: rgb(17 24 39) !important;
-    color: rgb(243 244 246) !important;
+.dark [role="option"] {
+    background-color: rgb(30 41 59) !important;
+    color: rgb(226 232 240) !important;
 }
 
-/* Tom Select (used by Filament) */
-.dark .ts-dropdown,
-.dark .ts-dropdown .option {
-    background-color: rgb(17 24 39) !important;
-    color: rgb(243 244 246) !important;
+.dark [role="option"]:hover,
+.dark [role="option"][aria-selected="true"],
+.dark [role="option"][data-active] {
+    background-color: rgb(51 65 85) !important;
+    color: rgb(255 255 255) !important;
 }
 
-.dark .ts-dropdown .option:hover,
-.dark .ts-dropdown .option.active {
-    background-color: rgb(31 41 55) !important;
-    color: rgb(243 244 246) !important;
+/* Filament fi-select dropdown panel */
+.dark .fi-select-dropdown,
+.dark .fi-fo-select .choices__list--dropdown,
+.dark .fi-fo-select [data-dropdown] {
+    background-color: rgb(30 41 59) !important;
+    border-color: rgb(71 85 105) !important;
 }
 
-/* Choices.js library */
-.dark .choices__list--dropdown {
-    background-color: rgb(17 24 39) !important;
-    border-color: rgb(55 65 81) !important;
+/* Choices.js (used by Filament Select) */
+.dark .choices__list--dropdown .choices__item,
+.dark .choices__list[role="listbox"] .choices__item {
+    background-color: rgb(30 41 59) !important;
+    color: rgb(226 232 240) !important;
 }
 
-.dark .choices__item {
-    background-color: rgb(17 24 39) !important;
-    color: rgb(243 244 246) !important;
+.dark .choices__list--dropdown .choices__item--selectable.is-highlighted,
+.dark .choices__list--dropdown .choices__item:hover {
+    background-color: rgb(51 65 85) !important;
+    color: rgb(255 255 255) !important;
 }
 
-.dark .choices__item:hover,
-.dark .choices__item.is-highlighted {
-    background-color: rgb(31 41 55) !important;
-    color: rgb(243 244 246) !important;
+.dark .choices__inner {
+    background-color: rgb(30 41 59) !important;
+    border-color: rgb(71 85 105) !important;
+    color: rgb(226 232 240) !important;
 }
 
-/* More specific Filament targeting */
-.dark .fi-select-input select,
-.dark .fi-select-input select option {
-    background-color: rgb(17 24 39) !important;
-    color: rgb(243 244 246) !important;
+.dark .choices__input {
+    background-color: rgb(30 41 59) !important;
+    color: rgb(226 232 240) !important;
 }
 
-/* Universal fix for any dropdown in dark mode */
-html.dark select,
-html.dark select option,
-html[data-theme="dark"] select,
-html[data-theme="dark"] select option {
-    background-color: rgb(17 24 39) !important;
-    color: rgb(243 244 246) !important;
-}
-
-/* Force styling for stubborn elements */
-* [data-theme="dark"] select option,
-*.dark select option {
-    background: rgb(17 24 39) !important;
-    color: rgb(243 244 246) !important;
+/* Filament table filter dropdowns */
+.dark .fi-ta-filters-dropdown,
+.dark .fi-dropdown-panel {
+    background-color: rgb(30 41 59) !important;
 }

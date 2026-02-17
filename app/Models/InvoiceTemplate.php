@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class InvoiceTemplate extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToCompany;
 
     protected $fillable = [
-        'name', 'slug', 'description', 'html_template',
+        'company_id', 'name', 'slug', 'description', 'html_template',
         'css_styles', 'is_default', 'is_active'
     ];
 

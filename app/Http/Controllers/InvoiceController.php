@@ -332,8 +332,13 @@ class InvoiceController extends Controller
      */
     public function generatePdf(Invoice $invoice)
     {
+        // Verify the invoice belongs to the authenticated user's company
+        if ($invoice->company_id !== auth()->user()->company_id) {
+            abort(403, 'Unauthorized access to this invoice.');
+        }
+
         $invoice->load(['client', 'project', 'user', 'items']);
-        
+
         $pdf = Pdf::loadView('invoices.pdf', ['record' => $invoice])
             ->setPaper('a4', 'portrait')
             ->setOptions([

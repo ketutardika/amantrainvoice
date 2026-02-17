@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,10 +10,10 @@ use Carbon\Carbon;
 
 class Invoice extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToCompany;
 
     protected $fillable = [
-        'invoice_number', 'client_id', 'project_id', 'user_id', 'tax_id',
+        'company_id', 'invoice_number', 'client_id', 'project_id', 'user_id', 'tax_id',
         'invoice_date', 'due_date', 'status',
         'subtotal', 'tax_amount', 'discount_amount', 'total_amount',
         'paid_amount', 'balance_due',
@@ -43,31 +44,34 @@ class Invoice extends Model
         
         static::creating(function ($invoice) {
             if (empty($invoice->invoice_number)) {
-                $invoice->invoice_number = static::generateInvoiceNumber();
+                $invoice->invoice_number = static::generateInvoiceNumber($invoice->company_id);
             }
         });
     }
 
-    public static function generateInvoiceNumber()
+    public static function generateInvoiceNumber($companyId = null)
     {
         $year = Carbon::now()->format('Y');
         $month = Carbon::now()->format('m');
-        $invoicePrefix = InvoiceSettings::getValue('invoice_prefix', 'INV');
+        $invoicePrefix = InvoiceSettings::getValue('invoice_prefix', 'INV', $companyId);
         $prefix = "{$invoicePrefix}-{$year}-{$month}-";
-        
-        // Find the latest invoice number for current month
-        $latestInvoice = static::where('invoice_number', 'like', $prefix . '%')
+
+        // Find the latest invoice number for current month, scoped by company
+        $query = static::where('invoice_number', 'like', $prefix . '%');
+        if ($companyId) {
+            $query->where('company_id', $companyId);
+        }
+        $latestInvoice = $query
             ->orderByRaw('CAST(SUBSTRING(invoice_number, -5) AS UNSIGNED) DESC')
             ->first();
-            
+
         if ($latestInvoice) {
-            // Extract the last 5 digits and increment
             $lastNumber = (int) substr($latestInvoice->invoice_number, -5);
             $newNumber = $lastNumber + 1;
         } else {
             $newNumber = 1;
         }
-        
+
         return $prefix . str_pad($newNumber, 5, '0', STR_PAD_LEFT);
     }
 

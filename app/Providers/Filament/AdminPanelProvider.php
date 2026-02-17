@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
-use App\Models\InvoiceSettings;
+use App\Filament\Pages\Auth\RegisterCompany;
+use App\Models\Company;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -28,12 +30,15 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName(InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')))
+            ->registration()
+            ->tenant(Company::class, slugAttribute: 'slug')
+            ->tenantRegistration(RegisterCompany::class)
+            ->brandName(config('app.name', 'Invoice System'))
             ->colors([
                 'primary' => Color::Blue,
             ])
             ->darkMode()
-            ->renderHook('panels::head.end', fn () => '<link rel="stylesheet" href="' . asset('build/assets/app.css') . '">')
+            ->viteTheme('resources/css/app.css')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([

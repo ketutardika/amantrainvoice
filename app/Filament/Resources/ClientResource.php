@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
@@ -37,7 +38,7 @@ class ClientResource extends Resource
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(50)
-                                    ->default(fn () => Client::generateClientCode())
+                                    ->default(fn () => Client::generateClientCode(Filament::getTenant()?->id))
                                     ->helperText('Auto-generated but editable: CLT-YYYY-0001 format'),
 
                                 Forms\Components\TextInput::make('name')

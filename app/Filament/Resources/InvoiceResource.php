@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
@@ -39,7 +40,7 @@ class InvoiceResource extends Resource
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255)
-                            ->default(fn () => Invoice::generateInvoiceNumber())
+                            ->default(fn () => Invoice::generateInvoiceNumber(Filament::getTenant()?->id))
                             ->helperText('Auto-generated but editable: {PREFIX}-YYYY-MM-00001 format (configurable in Settings)')
                             ->columnSpanFull(),
 
@@ -250,11 +251,10 @@ class InvoiceResource extends Resource
                                     ->relationship('tax', 'name')
                                     ->options(function () {
                                         return \App\Models\Tax::where('is_active', true)
+                                            ->where('company_id', Filament::getTenant()?->id)
+                                            ->get()
                                             ->pluck('name', 'id')
-                                            ->map(function ($name, $id) {
-                                                $tax = \App\Models\Tax::find($id);
-                                                return "{$name} ({$tax->rate}%)";
-                                            });
+                                            ->map(fn ($name, $id) => "{$name} (" . \App\Models\Tax::find($id)?->rate . "%)");
                                     })
                                     ->searchable()
                                     ->preload()
@@ -262,7 +262,9 @@ class InvoiceResource extends Resource
                                     ->live()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         if ($state) {
-                                            $tax = \App\Models\Tax::find($state);
+                                            $tax = \App\Models\Tax::where('id', $state)
+                                                ->where('company_id', Filament::getTenant()?->id)
+                                                ->first();
                                             if ($tax) {
                                                 $subtotal = floatval($get('subtotal')) ?: 0;
                                                 $taxAmount = ($subtotal * $tax->rate) / 100;
@@ -457,7 +459,7 @@ class InvoiceResource extends Resource
                                 ->required()
                                 ->unique(Payment::class, 'payment_number')
                                 ->maxLength(255)
-                                ->default(fn () => 'PAY-' . date('Y') . '-' . str_pad(Payment::count() + 1, 5, '0', STR_PAD_LEFT)),
+                                ->default(fn () => 'PAY-' . date('Y') . '-' . str_pad(Payment::where('company_id', Filament::getTenant()?->id)->count() + 1, 5, '0', STR_PAD_LEFT)),
 
                             Forms\Components\Hidden::make('invoice_id'),
 
@@ -525,10 +527,11 @@ class InvoiceResource extends Resource
                                 ->columnSpanFull(),
                         ])
                         ->action(function (Invoice $record, array $data) {
-                            // Set the invoice and client ID
+                            // Set the invoice, client, and company ID
                             $data['invoice_id'] = $record->id;
                             $data['client_id'] = $record->client_id;
-                            
+                            $data['company_id'] = Filament::getTenant()->id;
+
                             // Create the payment
                             $payment = Payment::create($data);
 

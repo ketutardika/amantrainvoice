@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToCompany;
 
     protected $fillable = [
-        'payment_number', 'invoice_id', 'client_id', 'user_id',
+        'company_id', 'payment_number', 'invoice_id', 'client_id', 'user_id',
         'amount', 'payment_date', 'payment_method',
         'reference_number', 'notes', 'attachment',
         'status', 'verified_at', 'verified_by'

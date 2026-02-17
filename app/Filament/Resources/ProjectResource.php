@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
@@ -36,7 +37,7 @@ class ProjectResource extends Resource
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(50)
-                                    ->default(fn () => 'PRJ-' . date('Y') . '-' . str_pad(Project::count() + 1, 4, '0', STR_PAD_LEFT)),
+                                    ->default(fn () => 'PRJ-' . date('Y') . '-' . str_pad(Project::where('company_id', Filament::getTenant()?->id)->count() + 1, 4, '0', STR_PAD_LEFT)),
 
                                 Forms\Components\Select::make('client_id')
                                     ->label('Client')
@@ -232,6 +233,7 @@ class ProjectResource extends Resource
                         ->color('primary')
                         ->action(function (Project $record) {
                             return redirect()->route('filament.admin.resources.invoices.create', [
+                                'tenant' => Filament::getTenant(),
                                 'client_id' => $record->client_id,
                                 'project_id' => $record->id,
                             ]);
