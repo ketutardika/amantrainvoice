@@ -10,11 +10,11 @@ class CompanySeeder extends Seeder
     public function run(): void
     {
         Company::create([
-            'name' => 'Demo Company',
-            'slug' => 'demo-company',
-            'email' => 'info@company.com',
-            'phone' => '+62xxx-xxxx-xxxx',
-            'address' => 'Bekasi, Indonesia',
+            'name' => 'Amantra Future Technology',
+            'slug' => 'amantra',
+            'email' => 'info@amantrabali.com',
+            'phone' => '+62812-3677-2522',
+            'address' => 'Jl. Indrakila 6 No 11, Denpasar - Bali',
             'country' => 'Indonesia',
             'is_active' => true,
         ]);

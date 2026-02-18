@@ -522,9 +522,41 @@
                         </div>
                     </td>
                     <td class="header-center">
+                        @php
+                            $companyId   = $record->company_id;
+                            $logoPath    = \App\Models\InvoiceSettings::getValue('company_logo', null, $companyId);
+                            $tagline     = \App\Models\InvoiceSettings::getValue('company_tagline', null, $companyId);
+                            $logoBase64  = null;
+                            $logoMime    = 'image/png';
+
+                            if ($logoPath) {
+                                $fullLogoPath = storage_path('app/public/' . $logoPath);
+                                if (file_exists($fullLogoPath)) {
+                                    $ext = strtolower(pathinfo($fullLogoPath, PATHINFO_EXTENSION));
+                                    $logoMime   = match($ext) {
+                                        'jpg', 'jpeg' => 'image/jpeg',
+                                        'gif'         => 'image/gif',
+                                        default       => 'image/png',
+                                    };
+                                    $logoBase64 = base64_encode(file_get_contents($fullLogoPath));
+                                }
+                            }
+
+                            if (!$logoBase64) {
+                                $defaultLogo = public_path('images/logo_amantrabali-light-02.png');
+                                if (file_exists($defaultLogo)) {
+                                    $logoBase64 = base64_encode(file_get_contents($defaultLogo));
+                                    $logoMime   = 'image/png';
+                                }
+                            }
+                        @endphp
                         <div class="company-logo">
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo_amantrabali-light-02.png'))) }}" alt="Company Logo" style="height: 55px; width: auto;">
-                            <p>Crafting Digital Excellence</p>
+                            @if($logoBase64)
+                                <img src="data:{{ $logoMime }};base64,{{ $logoBase64 }}" alt="Company Logo" style="height: 55px; width: auto;">
+                            @endif
+                            @if($tagline)
+                                <p>{{ $tagline }}</p>
+                            @endif
                         </div>
                     </td>
                     <td class="header-right">
@@ -577,14 +609,14 @@
                     <td class="content-right">
                         <div class="info-box">
                             <div class="section-title">From:</div>
-                            <div class="client-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
+                            <div class="client-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company'), $companyId) }}</div>
                             <div class="client-info">
-                                {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com') }}
-                                @if(\App\Models\InvoiceSettings::getValue('company_phone'))
-                                    <br><a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', \App\Models\InvoiceSettings::getValue('company_phone')) }}" class="whatsapp-link">{{ \App\Models\InvoiceSettings::getValue('company_phone') }}</a>
+                                {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com', $companyId) }}
+                                @if(\App\Models\InvoiceSettings::getValue('company_phone', null, $companyId))
+                                    <br><a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', \App\Models\InvoiceSettings::getValue('company_phone', '', $companyId)) }}" class="whatsapp-link">{{ \App\Models\InvoiceSettings::getValue('company_phone', '', $companyId) }}</a>
                                 @endif
-                                @if(\App\Models\InvoiceSettings::getValue('company_website'))
-                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_website') }}
+                                @if(\App\Models\InvoiceSettings::getValue('company_website', null, $companyId))
+                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_website', '', $companyId) }}
                                 @endif
                                 <!-- @if(\App\Models\InvoiceSettings::getValue('company_address'))
                                     <br>{!! \App\Models\InvoiceSettings::getValue('company_address') !!}
@@ -710,7 +742,7 @@
 
         <!-- Payment Information Section -->
         @php
-            $bankAccountsJson = \App\Models\InvoiceSettings::getValue('bank_accounts');
+            $bankAccountsJson = \App\Models\InvoiceSettings::getValue('bank_accounts', null, $companyId);
             $bankAccounts = $bankAccountsJson ? json_decode($bankAccountsJson, true) : [];
         @endphp
         
@@ -776,7 +808,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <div class="thank-you">{!! \App\Models\InvoiceSettings::getValue('invoice_footer_text', 'Thank you for your business!') !!}</div>
+            <div class="thank-you">{!! \App\Models\InvoiceSettings::getValue('invoice_footer_text', 'Thank you for your business!', $companyId) !!}</div>
             <div class="generated">Generated on {{ now()->format('M d, Y \a\t g:i A') }}</div>
         </div>
     </div>

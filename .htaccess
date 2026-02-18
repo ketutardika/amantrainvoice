@@ -1,0 +1,6 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Rewrite everything to the public/ directory (Laravel's web root)
+    RewriteRule ^$ public/ [L]
+    RewriteRule (^(?!public/).+) public/$1 [L]
+</IfModule>
