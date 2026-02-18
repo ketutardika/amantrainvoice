@@ -551,7 +551,10 @@ class InvoiceResource extends Resource
                     Tables\Actions\Action::make('view_pdf')
                         ->label('View PDF')
                         ->icon('heroicon-o-eye')
-                        ->url(fn (Invoice $record): string => route('invoices.view', $record))
+                        ->url(fn (Invoice $record): string => route('invoices.public.pdf', [
+                            'tenant'        => Filament::getTenant()->slug,
+                            'invoiceNumber' => $record->invoice_number,
+                        ]))
                         ->openUrlInNewTab(),
                     Tables\Actions\DeleteAction::make(),
                 ]),
