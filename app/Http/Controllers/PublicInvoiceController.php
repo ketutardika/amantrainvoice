@@ -35,10 +35,11 @@ class PublicInvoiceController extends Controller
             ]);
 
             InvoiceStatusLog::create([
-                'invoice_id' => $invoice->id,
-                'status'     => 'viewed',
-                'user_id'    => null,
-                'notes'      => 'Invoice viewed by client via public link',
+                'invoice_id'  => $invoice->id,
+                'from_status' => 'sent',
+                'to_status'   => 'viewed',
+                'user_id'     => null,
+                'notes'       => 'Invoice viewed by client via public link',
             ]);
         }
 
