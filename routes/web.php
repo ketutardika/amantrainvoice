@@ -26,7 +26,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoices/{invoice}/view', ViewInvoice::class)->name('invoices.view');
 });
 
-// Public invoice URL — accessible by clients without authentication
-// URL: /invoices/{company-slug}/{invoice-number}/pdf
-Route::get('/invoices/{tenant}/{invoiceNumber}/pdf', [PublicInvoiceController::class, 'show'])
-    ->name('invoices.public.pdf');
+// Public invoice URL — accessible by clients without authentication.
+// Uses a UUID public_token (opaque, no invoice number exposed) and a
+// cryptographic signature so the URL cannot be forged or enumerated.
+// URL: /invoices/{company-slug}/{uuid}/pdf?signature=...
+Route::get('/invoices/{tenant}/{publicToken}/pdf', [PublicInvoiceController::class, 'show'])
+    ->name('invoices.public.pdf')
+    ->middleware('signed');

@@ -17,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Grid;
@@ -551,9 +552,9 @@ class InvoiceResource extends Resource
                     Tables\Actions\Action::make('view_pdf')
                         ->label('View PDF')
                         ->icon('heroicon-o-eye')
-                        ->url(fn (Invoice $record): string => route('invoices.public.pdf', [
-                            'tenant'        => Filament::getTenant()->slug,
-                            'invoiceNumber' => $record->invoice_number,
+                        ->url(fn (Invoice $record): string => URL::signedRoute('invoices.public.pdf', [
+                            'tenant'      => Filament::getTenant()->slug,
+                            'publicToken' => $record->public_token,
                         ]))
                         ->openUrlInNewTab(),
                     Tables\Actions\DeleteAction::make(),

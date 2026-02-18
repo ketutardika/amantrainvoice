@@ -14,16 +14,16 @@ class PublicInvoiceController extends Controller
      * Display the invoice PDF publicly (no authentication required).
      * URL: /invoices/{tenant}/{invoiceNumber}/pdf
      */
-    public function show(string $tenant, string $invoiceNumber)
+    public function show(string $tenant, string $publicToken)
     {
         // Find the company by slug
         $company = Company::where('slug', $tenant)
             ->where('is_active', true)
             ->firstOrFail();
 
-        // Find the invoice scoped to that company
+        // Find the invoice by its opaque UUID token, scoped to that company
         $invoice = Invoice::where('company_id', $company->id)
-            ->where('invoice_number', $invoiceNumber)
+            ->where('public_token', $publicToken)
             ->with(['client', 'project', 'items', 'user'])
             ->firstOrFail();
 
