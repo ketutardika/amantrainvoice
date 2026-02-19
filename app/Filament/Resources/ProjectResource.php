@@ -41,7 +41,7 @@ class ProjectResource extends Resource
 
                                 Forms\Components\Select::make('client_id')
                                     ->label('Client')
-                                    ->relationship('client', 'name')
+                                    ->relationship('client', 'name', fn (Builder $query) => $query->where('company_id', Filament::getTenant()->id))
                                     ->searchable()
                                     ->preload()
                                     ->required()
@@ -204,7 +204,7 @@ class ProjectResource extends Resource
                     ]),
 
                 SelectFilter::make('client')
-                    ->relationship('client', 'name')
+                    ->relationship('client', 'name', fn (Builder $query) => $query->where('company_id', Filament::getTenant()->id))
                     ->searchable()
                     ->preload(),
 
