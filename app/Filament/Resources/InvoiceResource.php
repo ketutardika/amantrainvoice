@@ -52,7 +52,7 @@ class InvoiceResource extends Resource
                             ->schema([
                                 Forms\Components\Select::make('client_id')
                                     ->label('Client')
-                                    ->relationship('client', 'name')
+                                    ->relationship('client', 'name', fn (Builder $query) => $query->where('company_id', Filament::getTenant()->id))
                                     ->searchable()
                                     ->preload()
                                     ->required()
@@ -69,7 +69,7 @@ class InvoiceResource extends Resource
 
                                 Forms\Components\Select::make('project_id')
                                     ->label('Project')
-                                    ->relationship('project', 'name')
+                                    ->relationship('project', 'name', fn (Builder $query) => $query->where('company_id', Filament::getTenant()->id))
                                     ->searchable()
                                     ->preload(),
                             ]),
@@ -426,7 +426,7 @@ class InvoiceResource extends Resource
                     ]),
 
                 SelectFilter::make('client')
-                    ->relationship('client', 'name')
+                    ->relationship('client', 'name', fn (Builder $query) => $query->where('company_id', Filament::getTenant()->id))
                     ->searchable()
                     ->preload(),
 
