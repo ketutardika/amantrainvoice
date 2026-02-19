@@ -576,8 +576,8 @@
                             @if($record->client->company_name)
                                 <div class="client-company">{{ $record->client->company_name }}</div>
                             @endif
-                             @if($record->client->address)
-                                <div class="client-address">{{ $record->client->address }}</div>
+                            @if($record->client->address)
+                                <div class="client-address">{!! $record->client->address !!}</div>
                             @endif
                             <div class="client-info">
                                 {{ $record->client->email }}
