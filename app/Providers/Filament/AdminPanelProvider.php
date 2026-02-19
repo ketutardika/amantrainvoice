@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\RegisterCompany;
 use App\Filament\Pages\EditCompanyProfile;
 use App\Models\Company;
@@ -30,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
             ->registration()
             ->tenant(Company::class, slugAttribute: 'slug')
             ->tenantRegistration(RegisterCompany::class)

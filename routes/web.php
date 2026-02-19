@@ -18,7 +18,7 @@ use App\Http\Controllers\ViewInvoice;
 
 Route::get('/', function () {
     return redirect('/admin/login');
-});
+})->name('login');
 
 // PDF Routes (authenticated)
 Route::middleware(['auth'])->group(function () {

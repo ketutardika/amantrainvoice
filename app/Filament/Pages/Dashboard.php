@@ -16,6 +16,6 @@ class Dashboard extends BaseDashboard
     
     public function getSubheading(): ?string
     {
-        return 'Welcome to your invoice management dashboard';
+        return 'Fast. Simple. Reliable. The tool every freelancer and small business needs to get paid instantly';
     }
 }
