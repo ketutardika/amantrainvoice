@@ -16,6 +16,6 @@ class Dashboard extends BaseDashboard
     
     public function getSubheading(): ?string
     {
-        return 'Fast. Simple. Reliable. The tool every freelancer and small business needs to get paid instantly';
+        return 'Create professional invoices instantly and get paid faster.';
     }
 }
