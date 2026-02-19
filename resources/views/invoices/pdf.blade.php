@@ -541,18 +541,12 @@
                                     $logoBase64 = base64_encode(file_get_contents($fullLogoPath));
                                 }
                             }
-
-                            if (!$logoBase64) {
-                                $defaultLogo = public_path('images/logo_amantrabali-light-02.png');
-                                if (file_exists($defaultLogo)) {
-                                    $logoBase64 = base64_encode(file_get_contents($defaultLogo));
-                                    $logoMime   = 'image/png';
-                                }
-                            }
                         @endphp
                         <div class="company-logo">
                             @if($logoBase64)
                                 <img src="data:{{ $logoMime }};base64,{{ $logoBase64 }}" alt="Company Logo" style="height: 55px; width: auto;">
+                            @else
+                                <p style="font-size: 20px; font-weight: bold; margin: 0;">{{ $record->company->name }}</p>
                             @endif
                             @if($tagline)
                                 <p>{{ $tagline }}</p>
