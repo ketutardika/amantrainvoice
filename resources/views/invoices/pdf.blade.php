@@ -806,7 +806,7 @@
         <!-- Footer -->
         <div class="footer">
             <div class="thank-you">{!! \App\Models\InvoiceSettings::getValue('invoice_footer_text', 'Thank you for your business!', $companyId) !!}</div>
-            <div class="generated">Generated on {{ now()->format('M d, Y \a\t g:i A') }}</div>
+            <div class="generated">Generated on {{ now()->format('M d, Y \a\t g:i A') }} | {{ config('app.url') }}</div>
         </div>
     </div>
 </body>
