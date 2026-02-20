@@ -1,2 +1,26 @@
 User-agent: *
+Disallow: /admin/
+Disallow: /export/
+Disallow: /invoices/*/pdf
+Disallow: /invoices/*/view
+
+# Allow social media crawlers for OG/meta preview scraping
+User-agent: facebookexternalhit
 Disallow:
+
+User-agent: Twitterbot
+Disallow:
+
+User-agent: LinkedInBot
+Disallow:
+
+User-agent: WhatsApp
+Disallow:
+
+User-agent: Slackbot
+Disallow:
+
+User-agent: TelegramBot
+Disallow:
+
+Sitemap: https://instantinvoice.cloud/sitemap.xml
