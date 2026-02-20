@@ -4,7 +4,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name') }} — Create Professional Invoices Instantly</title>
-    <meta name="description" content="Manage clients, track payments, and generate beautiful PDF invoices in seconds. Multi-tenant invoice management for your business.">
+
+    {{-- Basic SEO --}}
+    <meta name="description" content="Create professional invoices instantly. Manage clients, track payments, and generate beautiful PDF invoices in seconds. Free to start.">
+    <meta name="keywords" content="invoice, invoicing, invoice maker, pdf invoice, client management, payment tracking, invoice software, online invoicing">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="{{ config('app.name') }}">
+    <link rel="canonical" href="{{ url('/') }}">
+
+    {{-- Open Graph --}}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:title" content="{{ config('app.name') }} — Create Professional Invoices Instantly">
+    <meta property="og:description" content="Create professional invoices instantly. Manage clients, track payments, and generate beautiful PDF invoices in seconds. Free to start.">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="https://instantinvoice.cloud/images/instant-invoice-demo.png">
+    <meta property="og:image:alt" content="{{ config('app.name') }} dashboard preview">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ config('app.name') }} — Create Professional Invoices Instantly">
+    <meta name="twitter:description" content="Create professional invoices instantly. Manage clients, track payments, and generate beautiful PDF invoices in seconds. Free to start.">
+    <meta name="twitter:image" content="https://instantinvoice.cloud/images/instant-invoice-demo.png">
+    <meta name="twitter:image:alt" content="{{ config('app.name') }} dashboard preview">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
