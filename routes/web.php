@@ -18,8 +18,16 @@ use App\Http\Controllers\ViewInvoice;
 */
 
 Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/login', function () {
     return redirect('/admin/login');
 })->name('login');
+
+Route::get('/docs', function () {
+    return view('docs');
+})->name('docs');
 
 // PDF Routes (authenticated)
 Route::middleware(['auth'])->group(function () {

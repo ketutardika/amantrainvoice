@@ -10,6 +10,7 @@ use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -42,6 +43,12 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->darkMode()
             ->renderHook('panels::head.end', fn () => view('filament.custom-head')->render())
+            ->navigationItems([
+                NavigationItem::make('Documentation')
+                    ->url('/docs', shouldOpenInNewTab: true)
+                    ->icon('heroicon-o-book-open')
+                    ->sort(99),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
