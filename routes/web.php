@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PublicInvoiceController;
 use App\Http\Controllers\ViewInvoice;
 
 /*
@@ -17,10 +19,19 @@ use App\Http\Controllers\ViewInvoice;
 
 Route::get('/', function () {
     return redirect('/admin/login');
-});
+})->name('login');
 
-// PDF Routes
+// PDF Routes (authenticated)
 Route::middleware(['auth'])->group(function () {
     Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'generatePdf'])->name('invoices.pdf');
     Route::get('/invoices/{invoice}/view', ViewInvoice::class)->name('invoices.view');
+    Route::get('/export/{model}', [ExportController::class, 'export'])->name('export.data');
 });
+
+// Public invoice URL — accessible by clients without authentication.
+// Uses a UUID public_token (opaque, no invoice number exposed) and a
+// cryptographic signature so the URL cannot be forged or enumerated.
+// URL: /invoices/{company-slug}/{uuid}/pdf?signature=...
+Route::get('/invoices/{tenant}/{publicToken}/pdf', [PublicInvoiceController::class, 'show'])
+    ->name('invoices.public.pdf')
+    ->middleware('signed');

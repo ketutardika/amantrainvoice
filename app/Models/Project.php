@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToCompany;
 
     protected $fillable = [
-        'project_code', 'name', 'description', 'client_id',
+        'company_id', 'project_code', 'name', 'description', 'client_id',
         'status', 'budget', 'progress_percentage', 'start_date', 'end_date'
     ];
 

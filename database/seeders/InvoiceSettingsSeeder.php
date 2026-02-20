@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Company;
 use App\Models\InvoiceSettings;
 
 class InvoiceSettingsSeeder extends Seeder
@@ -13,12 +14,15 @@ class InvoiceSettingsSeeder extends Seeder
      */
     public function run()
     {
+        $company = Company::first();
+        $companyId = $company?->id;
+
         $settings = [
-            ['key' => 'company_name', 'value' => 'Your Company Name', 'type' => 'text', 'description' => 'Company name displayed on invoices'],
-            ['key' => 'company_email', 'value' => 'info@company.com', 'type' => 'email', 'description' => 'Primary company email address'],
-            ['key' => 'company_phone', 'value' => '+62xxx-xxxx-xxxx', 'type' => 'text', 'description' => 'Company contact phone number'],
+            ['key' => 'company_name', 'value' => $company?->name ?? 'Your Company Name', 'type' => 'text', 'description' => 'Company name displayed on invoices'],
+            ['key' => 'company_email', 'value' => $company?->email ?? 'info@company.com', 'type' => 'email', 'description' => 'Primary company email address'],
+            ['key' => 'company_phone', 'value' => $company?->phone ?? '+62xxx-xxxx-xxxx', 'type' => 'text', 'description' => 'Company contact phone number'],
             ['key' => 'company_website', 'value' => 'https://yourcompany.com', 'type' => 'url', 'description' => 'Company website URL'],
-            ['key' => 'company_address', 'value' => 'Your Company Address\nCity, State ZIP', 'type' => 'textarea', 'description' => 'Complete company address for invoices'],
+            ['key' => 'company_address', 'value' => $company?->address ?? 'Your Company Address', 'type' => 'textarea', 'description' => 'Complete company address for invoices'],
             ['key' => 'invoice_prefix', 'value' => 'INV', 'type' => 'text', 'description' => 'Prefix for invoice numbers'],
             ['key' => 'default_currency', 'value' => 'IDR', 'type' => 'text', 'description' => 'Default currency for new invoices'],
             ['key' => 'default_payment_terms', 'value' => '30', 'type' => 'number', 'description' => 'Default payment terms in days'],
@@ -38,8 +42,8 @@ class InvoiceSettingsSeeder extends Seeder
 
         foreach ($settings as $setting) {
             InvoiceSettings::updateOrCreate(
-                ['key' => $setting['key']],
-                $setting
+                ['key' => $setting['key'], 'company_id' => $companyId],
+                array_merge($setting, ['company_id' => $companyId])
             );
         }
     }

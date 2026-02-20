@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Invoice {{ $record->invoice_number }}</title>
+    <title>{{ $record->company->name }} - Invoice {{ $record->invoice_number }} - {{ parse_url(config('app.url'), PHP_URL_HOST) }}</title>
     <style>
         @page {
             margin: 20mm;
@@ -514,7 +514,7 @@
                 <tr>
                     <td class="header-left">
                         <div class="invoice-title">INVOICE</div>
-                        <div class="detail-line">
+                        <div class="detail-line" style="margin-top: 4px;">
                             <span class="detail-label">Status:</span>
                             <span class="status-badge status-{{ $record->status }}">
                                 {{ ucfirst(str_replace('_', ' ', $record->status)) }}
@@ -522,9 +522,35 @@
                         </div>
                     </td>
                     <td class="header-center">
+                        @php
+                            $companyId   = $record->company_id;
+                            $logoPath    = \App\Models\InvoiceSettings::getValue('company_logo', null, $companyId);
+                            $tagline     = \App\Models\InvoiceSettings::getValue('company_tagline', null, $companyId);
+                            $logoBase64  = null;
+                            $logoMime    = 'image/png';
+
+                            if ($logoPath) {
+                                $fullLogoPath = storage_path('app/public/' . $logoPath);
+                                if (file_exists($fullLogoPath)) {
+                                    $ext = strtolower(pathinfo($fullLogoPath, PATHINFO_EXTENSION));
+                                    $logoMime   = match($ext) {
+                                        'jpg', 'jpeg' => 'image/jpeg',
+                                        'gif'         => 'image/gif',
+                                        default       => 'image/png',
+                                    };
+                                    $logoBase64 = base64_encode(file_get_contents($fullLogoPath));
+                                }
+                            }
+                        @endphp
                         <div class="company-logo">
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo_amantrabali-light-02.png'))) }}" alt="Company Logo" style="height: 55px; width: auto;">
-                            <p>Crafting Digital Excellence</p>
+                            @if($logoBase64)
+                                <img src="data:{{ $logoMime }};base64,{{ $logoBase64 }}" alt="Company Logo" style="height: 55px; width: auto;">
+                            @else
+                                <p style="font-size: 20px; font-weight: bold; margin: 0;">{{ $record->company->name }}</p>
+                            @endif
+                            @if($tagline)
+                                <p>{{ $tagline }}</p>
+                            @endif
                         </div>
                     </td>
                     <td class="header-right">
@@ -533,7 +559,7 @@
                                 {{ $record->invoice_date->format('M d, Y') }}
                             </div>
                         </div>
-                        <div class="invoice-number">#{{ $record->invoice_number }}</div>
+                        <div class="invoice-number">#{{ $record->invoice_number }}</div>                        
                     </td>
                 </tr>
             </table>
@@ -549,6 +575,9 @@
                             <div class="client-name">{{ $record->client->name }}</div>
                             @if($record->client->company_name)
                                 <div class="client-company">{{ $record->client->company_name }}</div>
+                            @endif
+                            @if($record->client->address)
+                                <div class="client-address">{!! $record->client->address !!}</div>
                             @endif
                             <div class="client-info">
                                 {{ $record->client->email }}
@@ -577,14 +606,14 @@
                     <td class="content-right">
                         <div class="info-box">
                             <div class="section-title">From:</div>
-                            <div class="client-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company')) }}</div>
+                            <div class="client-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company'), $companyId) }}</div>
                             <div class="client-info">
-                                {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com') }}
-                                @if(\App\Models\InvoiceSettings::getValue('company_phone'))
-                                    <br><a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', \App\Models\InvoiceSettings::getValue('company_phone')) }}" class="whatsapp-link">{{ \App\Models\InvoiceSettings::getValue('company_phone') }}</a>
+                                {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com', $companyId) }}
+                                @if(\App\Models\InvoiceSettings::getValue('company_phone', null, $companyId))
+                                    <br><a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', \App\Models\InvoiceSettings::getValue('company_phone', '', $companyId)) }}" class="whatsapp-link">{{ \App\Models\InvoiceSettings::getValue('company_phone', '', $companyId) }}</a>
                                 @endif
-                                @if(\App\Models\InvoiceSettings::getValue('company_website'))
-                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_website') }}
+                                @if(\App\Models\InvoiceSettings::getValue('company_website', null, $companyId))
+                                    <br>{{ \App\Models\InvoiceSettings::getValue('company_website', '', $companyId) }}
                                 @endif
                                 <!-- @if(\App\Models\InvoiceSettings::getValue('company_address'))
                                     <br>{!! \App\Models\InvoiceSettings::getValue('company_address') !!}
@@ -710,7 +739,7 @@
 
         <!-- Payment Information Section -->
         @php
-            $bankAccountsJson = \App\Models\InvoiceSettings::getValue('bank_accounts');
+            $bankAccountsJson = \App\Models\InvoiceSettings::getValue('bank_accounts', null, $companyId);
             $bankAccounts = $bankAccountsJson ? json_decode($bankAccountsJson, true) : [];
         @endphp
         
@@ -720,7 +749,6 @@
                 <div class="payment-main-title">Payment Information</div>
                 <div class="payment-subtitle">Please transfer to one of the following accounts:</div>
             </div>
-            
             <table class="payment-table">
                 @foreach($bankAccounts as $index => $bank)
                     @if($index % 2 == 0)
@@ -774,10 +802,46 @@
         </div>
         @endif
 
+        <!-- QR Code -->
+        <div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
+            @php
+                $publicUrl = \Illuminate\Support\Facades\URL::signedRoute('invoices.public.pdf', [
+                    'tenant'      => $record->company->slug,
+                    'publicToken' => $record->public_token,
+                ]);
+                $qrMatrix   = \BaconQrCode\Encoder\Encoder::encode($publicUrl, \BaconQrCode\Common\ErrorCorrectionLevel::M())->getMatrix();
+                $matrixSize = $qrMatrix->getWidth();
+                $quietZone  = 2;
+                $totalMod   = $matrixSize + ($quietZone * 2);
+                $blockSize  = max(2, (int)(90 / $totalMod));
+                $imgSize    = $blockSize * $totalMod;
+                $img        = imagecreate($imgSize, $imgSize);
+                $white      = imagecolorallocate($img, 255, 255, 255);
+                $black      = imagecolorallocate($img, 0, 0, 0);
+                imagefill($img, 0, 0, $white);
+                $offset = $quietZone * $blockSize;
+                for ($qy = 0; $qy < $matrixSize; $qy++) {
+                    for ($qx = 0; $qx < $matrixSize; $qx++) {
+                        if ($qrMatrix->get($qx, $qy) !== 0) {
+                            $px = $offset + $qx * $blockSize;
+                            $py = $offset + $qy * $blockSize;
+                            imagefilledrectangle($img, $px, $py, $px + $blockSize - 1, $py + $blockSize - 1, $black);
+                        }
+                    }
+                }
+                ob_start();
+                imagepng($img);
+                $qrBase64 = base64_encode(ob_get_clean());
+                imagedestroy($img);
+            @endphp
+            <img src="data:image/png;base64,{{ $qrBase64 }}" alt="QR Code" style="width: {{ $imgSize }}px; height: {{ $imgSize }}px; display: inline-block;">
+            <div style="font-size: 8px; color: #999; margin-top: 4px;">Scan to view &amp; pay</div>
+        </div>
+
         <!-- Footer -->
         <div class="footer">
-            <div class="thank-you">{!! \App\Models\InvoiceSettings::getValue('invoice_footer_text', 'Thank you for your business!') !!}</div>
-            <div class="generated">Generated on {{ now()->format('M d, Y \a\t g:i A') }}</div>
+            <div class="thank-you">{!! \App\Models\InvoiceSettings::getValue('invoice_footer_text', 'Thank you for your business!', $companyId) !!}</div>
+            <div class="generated">Generated on {{ now()->format('M d, Y \a\t g:i A') }} | {{ preg_replace('#^https?://#', '', config('app.url')) }}</div>
         </div>
     </div>
 </body>

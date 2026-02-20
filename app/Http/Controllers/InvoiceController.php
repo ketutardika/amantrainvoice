@@ -332,8 +332,13 @@ class InvoiceController extends Controller
      */
     public function generatePdf(Invoice $invoice)
     {
+        // Verify the invoice belongs to the authenticated user's company
+        if ($invoice->company_id !== auth()->user()->company_id) {
+            abort(403, 'Unauthorized access to this invoice.');
+        }
+
         $invoice->load(['client', 'project', 'user', 'items']);
-        
+
         $pdf = Pdf::loadView('invoices.pdf', ['record' => $invoice])
             ->setPaper('a4', 'portrait')
             ->setOptions([
@@ -344,7 +349,12 @@ class InvoiceController extends Controller
                 'isPhpEnabled' => false,
             ]);
         
-        return $pdf->stream('invoice-' . $invoice->invoice_number . '.pdf');
+        $siteHost = parse_url(config('app.url'), PHP_URL_HOST);
+        $companySlug = auth()->user()->company->slug;
+        $invoiceSlug = strtolower(str_replace(['/', '\\', ' '], '-', $invoice->invoice_number));
+        $timestamp = now()->format('Y-m-d_His');
+
+        return $pdf->stream("{$siteHost}-export-invoice-{$companySlug}-{$invoiceSlug}={$timestamp}.pdf");
     }
 
     /**

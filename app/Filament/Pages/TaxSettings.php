@@ -16,6 +16,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use App\Models\Tax;
 
@@ -170,14 +171,17 @@ class TaxSettings extends Page implements HasForms, HasActions
     {
         $data = $this->form->getState();
 
-        // Delete all existing taxes first (soft delete)
-        Tax::query()->delete();
+        $companyId = Filament::getTenant()->id;
 
-        // Save new taxes
+        // Delete existing taxes for this company only (soft delete)
+        Tax::where('company_id', $companyId)->delete();
+
+        // Save new taxes for this company
         if (!empty($data['taxes'])) {
             foreach ($data['taxes'] as $taxData) {
                 if (!empty($taxData['name']) && !empty($taxData['code'])) {
                     Tax::create([
+                        'company_id' => $companyId,
                         'name' => $taxData['name'],
                         'code' => strtoupper($taxData['code']),
                         'rate' => $taxData['rate'] ?? 0,
@@ -204,7 +208,8 @@ class TaxSettings extends Page implements HasForms, HasActions
 
     protected function getTaxesData(): array
     {
-        $taxes = Tax::orderBy('name')->get();
+        $companyId = Filament::getTenant()?->id;
+        $taxes = Tax::where('company_id', $companyId)->orderBy('name')->get();
         
         $data = [
             'taxes' => $taxes->map(function ($tax) {

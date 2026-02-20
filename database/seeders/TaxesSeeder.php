@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Company;
 use App\Models\Tax;
 
 class TaxesSeeder extends Seeder
@@ -13,6 +14,9 @@ class TaxesSeeder extends Seeder
      */
     public function run()
     {
+        $company = Company::first();
+        $companyId = $company?->id;
+
         $taxes = [
             [
                 'name' => 'PPN (Pajak Pertambahan Nilai)',
@@ -42,8 +46,8 @@ class TaxesSeeder extends Seeder
 
         foreach ($taxes as $tax) {
             Tax::updateOrCreate(
-                ['code' => $tax['code']],
-                $tax
+                ['code' => $tax['code'], 'company_id' => $companyId],
+                array_merge($tax, ['company_id' => $companyId])
             );
         }
     }

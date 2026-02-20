@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
@@ -36,11 +37,11 @@ class ProjectResource extends Resource
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(50)
-                                    ->default(fn () => 'PRJ-' . date('Y') . '-' . str_pad(Project::count() + 1, 4, '0', STR_PAD_LEFT)),
+                                    ->default(fn () => 'PRJ-' . date('Y') . '-' . str_pad(Project::where('company_id', Filament::getTenant()?->id)->count() + 1, 4, '0', STR_PAD_LEFT)),
 
                                 Forms\Components\Select::make('client_id')
                                     ->label('Client')
-                                    ->relationship('client', 'name')
+                                    ->relationship('client', 'name', fn (Builder $query) => $query->where('company_id', Filament::getTenant()->id))
                                     ->searchable()
                                     ->preload()
                                     ->required()
@@ -192,6 +193,26 @@ class ProjectResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->headerActions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('export_csv')
+                        ->label('Export CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('gray')
+                        ->url(fn () => route('export.data', ['model' => 'projects', 'format' => 'csv']))
+                        ->openUrlInNewTab(),
+                    Tables\Actions\Action::make('export_xlsx')
+                        ->label('Export XLSX')
+                        ->icon('heroicon-o-table-cells')
+                        ->color('success')
+                        ->url(fn () => route('export.data', ['model' => 'projects', 'format' => 'xlsx']))
+                        ->openUrlInNewTab(),
+                ])
+                ->label('Export')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->button(),
+            ])
             ->filters([
                 SelectFilter::make('status')
                     ->options([
@@ -203,7 +224,7 @@ class ProjectResource extends Resource
                     ]),
 
                 SelectFilter::make('client')
-                    ->relationship('client', 'name')
+                    ->relationship('client', 'name', fn (Builder $query) => $query->where('company_id', Filament::getTenant()->id))
                     ->searchable()
                     ->preload(),
 
@@ -232,6 +253,7 @@ class ProjectResource extends Resource
                         ->color('primary')
                         ->action(function (Project $record) {
                             return redirect()->route('filament.admin.resources.invoices.create', [
+                                'tenant' => Filament::getTenant(),
                                 'client_id' => $record->client_id,
                                 'project_id' => $record->id,
                             ]);

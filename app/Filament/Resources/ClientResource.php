@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
@@ -37,7 +38,7 @@ class ClientResource extends Resource
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(50)
-                                    ->default(fn () => Client::generateClientCode())
+                                    ->default(fn () => Client::generateClientCode(Filament::getTenant()?->id))
                                     ->helperText('Auto-generated but editable: CLT-YYYY-0001 format'),
 
                                 Forms\Components\TextInput::make('name')
@@ -195,6 +196,26 @@ class ClientResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->headerActions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('export_csv')
+                        ->label('Export CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('gray')
+                        ->url(fn () => route('export.data', ['model' => 'clients', 'format' => 'csv']))
+                        ->openUrlInNewTab(),
+                    Tables\Actions\Action::make('export_xlsx')
+                        ->label('Export XLSX')
+                        ->icon('heroicon-o-table-cells')
+                        ->color('success')
+                        ->url(fn () => route('export.data', ['model' => 'clients', 'format' => 'xlsx']))
+                        ->openUrlInNewTab(),
+                ])
+                ->label('Export')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->button(),
             ])
             ->filters([
                 SelectFilter::make('client_type')

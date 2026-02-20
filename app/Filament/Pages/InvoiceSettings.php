@@ -13,6 +13,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\FileUpload;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -75,6 +76,25 @@ class InvoiceSettings extends Page implements HasForms, HasActions
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
+
+                Section::make('Branding')
+                    ->description('Upload your company logo and set a tagline for invoices')
+                    ->schema([
+                        FileUpload::make('company_logo')
+                            ->label('Company Logo')
+                            ->helperText('Displayed on all generated invoice PDFs. PNG or JPG recommended.')
+                            ->image()
+                            ->disk('public')
+                            ->directory('company-logos')
+                            ->maxSize(2048)
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif']),
+
+                        TextInput::make('company_tagline')
+                            ->label('Company Tagline')
+                            ->placeholder('e.g., Crafting Digital Excellence')
+                            ->maxLength(255),
+                    ])
+                    ->columns(1),
 
                 Section::make('Invoice Defaults')
                     ->description('Default values and behavior for new invoices')
@@ -259,10 +279,15 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             if ($key === 'bank_accounts') {
                 $value = json_encode($value);
             }
-            
+
+            // Skip saving a null logo so existing logo is preserved
+            if ($key === 'company_logo' && $value === null) {
+                continue;
+            }
+
             InvoiceSettingsModel::setValue(
-                $key, 
-                $value, 
+                $key,
+                $value,
                 $this->getSettingType($key),
                 $this->getSettingDescription($key)
             );
@@ -278,6 +303,7 @@ class InvoiceSettings extends Page implements HasForms, HasActions
     {
         $settingKeys = [
             'company_name', 'company_email', 'company_phone', 'company_website', 'company_address',
+            'company_logo', 'company_tagline',
             'invoice_prefix', 'default_currency', 'default_payment_terms', 'default_tax_rate', 'late_fee_percentage',
             'invoice_template', 'date_format', 'invoice_footer_text',
             'auto_send_invoice', 'send_payment_reminders', 'auto_follow_up', 'reminder_days_before', 'followup_days_after',
@@ -307,6 +333,7 @@ class InvoiceSettings extends Page implements HasForms, HasActions
         return match ($key) {
             'company_email' => 'email',
             'company_website' => 'url',
+            'company_logo' => 'file',
             'default_payment_terms', 'default_tax_rate', 'late_fee_percentage', 'reminder_days_before', 'followup_days_after' => 'number',
             'auto_send_invoice', 'send_payment_reminders', 'auto_follow_up' => 'boolean',
             'company_address', 'invoice_footer_text', 'default_terms_conditions', 'default_notes' => 'textarea',
@@ -323,6 +350,8 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'company_phone' => 'Company contact phone number',
             'company_website' => 'Company website URL',
             'company_address' => 'Complete company address for invoices',
+            'company_logo' => 'Company logo displayed on invoice PDFs',
+            'company_tagline' => 'Short tagline shown below the logo on invoices',
             'invoice_prefix' => 'Prefix for invoice numbers (e.g., INV)',
             'default_currency' => 'Default currency for new invoices',
             'default_payment_terms' => 'Default payment terms in days',

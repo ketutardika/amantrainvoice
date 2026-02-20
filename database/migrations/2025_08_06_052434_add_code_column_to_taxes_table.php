@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('taxes', function (Blueprint $table) {
-            $table->string('name')->after('id');
-            $table->string('code')->unique()->after('name');
-            $table->decimal('rate', 5, 2)->after('code');
-            $table->enum('type', ['percentage', 'fixed'])->default('percentage')->after('rate');
-            $table->text('description')->nullable()->after('type');
-            $table->boolean('is_active')->default(true)->after('description');
-        });
+        if (!Schema::hasColumn('taxes', 'code')) {
+            Schema::table('taxes', function (Blueprint $table) {
+                $table->string('name')->after('id');
+                $table->string('code')->unique()->after('name');
+                $table->decimal('rate', 5, 2)->after('code');
+                $table->enum('type', ['percentage', 'fixed'])->default('percentage')->after('rate');
+                $table->text('description')->nullable()->after('type');
+                $table->boolean('is_active')->default(true)->after('description');
+            });
+        }
     }
 
     /**

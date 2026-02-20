@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Tax extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToCompany;
 
     protected $fillable = [
-        'name', 'code', 'rate', 'type', 'description', 'is_active'
+        'company_id', 'name', 'code', 'rate', 'type', 'description', 'is_active'
     ];
 
     protected $casts = [

@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Project;
+use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -13,19 +14,25 @@ class StatsOverviewWidget extends BaseWidget
 {
     protected function getStats(): array
     {
-        $totalRevenue = Invoice::sum('paid_amount');
-        $paidRevenue = Invoice::sum('paid_amount');
-        $outstandingRevenue = Invoice::whereIn('status', ['sent', 'viewed', 'partial_paid', 'overdue'])->sum('balance_due');
-        
-        $thisMonthRevenue = Invoice::whereMonth('invoice_date', now()->month)
+        $companyId = Filament::getTenant()?->id;
+
+        $totalRevenue = Invoice::where('company_id', $companyId)->sum('paid_amount');
+        $paidRevenue = Invoice::where('company_id', $companyId)->sum('paid_amount');
+        $outstandingRevenue = Invoice::where('company_id', $companyId)
+            ->whereIn('status', ['sent', 'viewed', 'partial_paid', 'overdue'])
+            ->sum('balance_due');
+
+        $thisMonthRevenue = Invoice::where('company_id', $companyId)
+            ->whereMonth('invoice_date', now()->month)
             ->whereYear('invoice_date', now()->year)
             ->sum('paid_amount');
-            
-        $lastMonthRevenue = Invoice::whereMonth('invoice_date', now()->subMonth()->month)
+
+        $lastMonthRevenue = Invoice::where('company_id', $companyId)
+            ->whereMonth('invoice_date', now()->subMonth()->month)
             ->whereYear('invoice_date', now()->subMonth()->year)
             ->sum('paid_amount');
-            
-        $revenueChange = $lastMonthRevenue > 0 ? 
+
+        $revenueChange = $lastMonthRevenue > 0 ?
             round((($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1) : 0;
 
         return [
@@ -44,20 +51,20 @@ class StatsOverviewWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
-            Stat::make('Total Invoice', Invoice::count())
+            Stat::make('Total Invoice', Invoice::where('company_id', $companyId)->count())
                 ->description('Total number of invoices')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('info'),
 
-            Stat::make('Total Clients', Client::where('is_active', true)->count())
+            Stat::make('Total Clients', Client::where('company_id', $companyId)->where('is_active', true)->count())
                 ->description('Active clients')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('primary'),
 
-            Stat::make('Overdue Invoices', Invoice::where('status', 'overdue')->count())
+            Stat::make('Overdue Invoices', Invoice::where('company_id', $companyId)->where('status', 'overdue')->count())
                 ->description('Requires immediate attention')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
-                ->color('danger'),            
+                ->color('danger'),
         ];
     }
 }

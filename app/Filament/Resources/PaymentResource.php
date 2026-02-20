@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
@@ -38,7 +39,7 @@ class PaymentResource extends Resource
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(255)
-                                    ->default(fn () => 'PAY-' . date('Y') . '-' . str_pad(Payment::count() + 1, 5, '0', STR_PAD_LEFT)),
+                                    ->default(fn () => 'PAY-' . date('Y') . '-' . str_pad(Payment::where('company_id', Filament::getTenant()?->id)->count() + 1, 5, '0', STR_PAD_LEFT)),
 
                                 Forms\Components\Select::make('invoice_id')
                                     ->label('Invoice')
@@ -164,7 +165,7 @@ class PaymentResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->url(fn (Payment $record): string => 
-                        $record->invoice ? route('filament.admin.resources.invoices.view', $record->invoice) : '#'
+                        $record->invoice ? route('filament.admin.resources.invoices.view', ['tenant' => Filament::getTenant(), 'record' => $record->invoice]) : '#'
                     ),
 
                 Tables\Columns\TextColumn::make('client.name')
@@ -224,6 +225,26 @@ class PaymentResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->headerActions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('export_csv')
+                        ->label('Export CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('gray')
+                        ->url(fn () => route('export.data', ['model' => 'payments', 'format' => 'csv']))
+                        ->openUrlInNewTab(),
+                    Tables\Actions\Action::make('export_xlsx')
+                        ->label('Export XLSX')
+                        ->icon('heroicon-o-table-cells')
+                        ->color('success')
+                        ->url(fn () => route('export.data', ['model' => 'payments', 'format' => 'xlsx']))
+                        ->openUrlInNewTab(),
+                ])
+                ->label('Export')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->button(),
             ])
             ->filters([
                 SelectFilter::make('status')

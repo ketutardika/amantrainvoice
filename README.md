@@ -1,80 +1,171 @@
-# Invoice System
+# InstantInvoice
 
-A full-featured invoice management system built with Laravel 10 and PHP 8.1+. It provides robust functionality for managing clients, processing payments, generating PDFs, and creating detailed reports. The system supports multi-tenancy, role-based permissions, and advanced features like recurring invoices and webhook integrations.
+A multi-tenant SaaS invoice management system built with **Laravel 10** and **Filament 3.0**. Each user registers, creates a company, and manages their own clients, invoices, payments, and projects — fully isolated from other tenants. Default currency is IDR (Indonesian Rupiah).
+
+---
 
 ## Features
-- **Invoice Lifecycle Management**: Create, send, track, and manage invoices (Draft → Sent → Viewed → Paid → Overdue).
-- **Client Management**: Comprehensive client profiles with relationship handling.
-- **Payment Processing**: Secure payment integration for seamless transactions.
-- **PDF Generation**: Generate professional invoice PDFs using DomPDF.
-- **Reporting**: Exportable reports with Laravel Excel for data analysis.
-- **Multi-Tenancy**: Isolated tenant environments with role-based permissions via Spatie Permissions.
-- **Advanced Features**:
-  - Recurring invoices
-  - Bulk operations
-  - Webhook integrations
-  - Public invoice links
-- **API Support**: Secure API endpoints with Laravel Sanctum for authentication.
 
-## Architecture
-- **Framework**: Laravel 10 with PHP 8.1+
-- **Admin Panel**: Filament 3.0 - Modern TALL stack admin panel
-- **Key Dependencies**:
-  - [Filament](https://filamentphp.com/) v3.0 for admin panel and resource management
-  - [DomPDF](https://github.com/barryvdh/laravel-dompdf) for PDF generation
-  - [Laravel Excel](https://laravel-excel.com/) for report exports
-  - [Spatie Permissions](https://spatie.be/docs/laravel-permission) for role-based access control
-  - [Laravel Sanctum](https://laravel.com/docs/sanctum) for API authentication
-- **Relationships**: Structured connections between Users, Clients, Invoices, Payments, and Projects.
-- **Frontend Assets**: Vite-based asset compilation for modern frontend workflows.
+- **Invoice Lifecycle**: Draft → Sent → Viewed → Partially Paid → Paid → Overdue → Cancelled
+- **Client Management**: Full profiles with type (individual/company), address, tax number, credit limit, and payment terms
+- **Project Management**: Budget tracking, progress percentage, status flow, and invoice association
+- **Payment Tracking**: Multiple payment methods, verification workflow, and receipt attachments
+- **PDF Generation**: Professional invoice PDFs via DomPDF with QR code for quick client access
+- **Public Invoice Links**: Signed, unauthenticated URLs so clients can view invoices without logging in
+- **Export (CSV & XLSX)**: One-click export for Clients, Invoices, Projects, and Payments with raw numeric values
+- **Multi-Tenancy**: Company-based isolation — each tenant has their own data, slug-based URL, and settings
+- **Invoice Settings**: Configurable invoice prefix, default notes/terms, and branding per company
+- **Tax Settings**: Per-company tax rates (percentage, fixed, or compound)
 
-## Filament Admin Panel
+---
 
-This project uses **Filament 3.0**, a powerful admin panel framework built on the TALL stack (Tailwind, Alpine.js, Laravel, Livewire).
+## Tech Stack
 
-### Features Implemented with Filament
-- **Resource Management**: Full CRUD operations for Invoices, Clients, Projects, and Users
-- **Dashboard**: Real-time analytics and business insights
-- **Role-Based Access Control**: Integration with Spatie Permissions for granular access management
-- **Custom Actions**: Bulk operations, invoice status updates, and PDF generation
-- **Relations Manager**: Seamless management of invoice items, payments, and status logs
-- **Advanced Tables**: Filtering, sorting, searching, and bulk actions on all resources
-- **Form Builder**: Dynamic forms with validation for data entry
-- **Notifications**: Real-time user notifications and alerts
+| Layer | Technology |
+|---|---|
+| Framework | Laravel 10 (PHP 8.1+) |
+| Admin Panel | Filament 3.0 (TALL stack) |
+| PDF Generation | barryvdh/laravel-dompdf |
+| Excel / CSV Export | maatwebsite/excel |
+| QR Code | simplesoftwareio/simple-qrcode |
+| Permissions | spatie/laravel-permission |
+| API Auth | Laravel Sanctum |
+| Frontend | Vite + Tailwind CSS |
 
-### Accessing the Admin Panel
-After installation, access the Filament admin panel at:
+---
+
+## Multi-Tenancy
+
+Uses Filament's built-in tenant support scoped to the `Company` model. Admin panel URLs follow the pattern:
+
 ```
-http://your-domain.com/admin
+/admin/{company-slug}/resources/...
 ```
 
-Default admin credentials (if seeded):
-- Email: admin@example.com
-- Password: password
+All resource queries are automatically scoped to the authenticated user's company.
 
-### Key Filament Resources
-- **InvoiceResource**: Manage invoice lifecycle, items, and payments
-- **ClientResource**: Client profile management and relationship tracking
-- **ProjectResource**: Project creation and invoice association
-- **UserResource**: User management with role assignment
-- **PaymentResource**: Payment tracking and reconciliation
-
-### Customization
-Filament resources are located in `app/Filament/Resources/`. Each resource includes:
-- Resource class for configuration
-- Pages for List, Create, Edit, and View
-- Relation managers for nested resources
-- Custom actions and filters
-
-## Prerequisites
-- PHP 8.1 or higher
-- Composer
-- Node.js and npm
-- MySQL/PostgreSQL or compatible database
-- Laravel-compatible server environment (e.g., Apache/Nginx)
+---
 
 ## Installation
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/ketutardika/amantrainvoice.git
-   cd amantrainvoice
+
+### Prerequisites
+- PHP 8.1+
+- Composer
+- Node.js & npm
+- MySQL or compatible database
+
+### Steps
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/ketutardika/amantrainvoice.git
+cd amantrainvoice
+
+# 2. Install dependencies
+composer install
+npm install
+
+# 3. Configure environment
+cp .env.example .env
+php artisan key:generate
+
+# 4. Set up the database in .env, then run migrations and seed
+php artisan migrate:fresh --seed
+
+# 5. Start development servers
+php artisan serve
+npm run dev
+```
+
+### Seeded Credentials
+- **URL**: `http://localhost:8000/admin/demo-company`
+- **Email**: `admin@amantrainvoice.com`
+- **Password**: `password`
+
+---
+
+## Key Commands
+
+```bash
+php artisan serve                          # Start Laravel dev server
+npm run dev                                # Start Vite (required for Filament assets)
+php artisan migrate                        # Run pending migrations
+php artisan migrate:fresh --seed           # Reset DB with demo data
+php artisan test                           # Run all tests
+./vendor/bin/pint                          # Laravel Pint code formatter (PSR-12)
+```
+
+---
+
+## Export
+
+Each resource table (Clients, Invoices, Projects, Payments) has an **Export** dropdown button in the table header with two options:
+
+- **Export CSV** — plain text, raw numeric values (no thousand separators)
+- **Export XLSX** — Excel workbook, bold headers, auto-sized columns
+
+Exported filenames follow the pattern:
+```
+{app-host}-export-{model}-{company-slug}-{YYYY-MM-DD_HHmmss}.{ext}
+```
+
+---
+
+## PDF
+
+Invoice PDFs are generated via DomPDF and include a QR code linking to the public invoice URL.
+
+### Routes
+| Route | Description |
+|---|---|
+| `GET /invoices/{invoice}/pdf` | Streams PDF (authenticated) |
+| `GET /invoices/{invoice}/view` | Inline PDF view (authenticated) |
+| `GET /invoices/{tenant}/{uuid}/pdf?signature=...` | Public signed URL for clients |
+
+### PDF filename pattern
+```
+{app-host}-export-invoice-{company-slug}-{invoice-number}={YYYY-MM-DD_HHmmss}.pdf
+```
+
+### Browser tab title
+```
+{Company Name} - Invoice {number} - {app-host}
+```
+
+All filenames and titles derive the hostname from `APP_URL` in `.env` — no hardcoded domain.
+
+---
+
+## Project Structure
+
+```
+app/
+├── Exports/                  # CSV/XLSX export classes
+│   ├── ClientsExport.php
+│   ├── InvoicesExport.php
+│   ├── ProjectsExport.php
+│   └── PaymentsExport.php
+├── Filament/
+│   ├── Pages/                # Dashboard, InvoiceSettings, TaxSettings, Auth
+│   └── Resources/            # ClientResource, InvoiceResource, ProjectResource, PaymentResource
+├── Http/Controllers/
+│   ├── ExportController.php
+│   ├── InvoiceController.php
+│   ├── PublicInvoiceController.php
+│   └── ViewInvoice.php
+└── Models/
+    ├── Company.php
+    ├── Client.php
+    ├── Invoice.php
+    ├── InvoiceItem.php
+    ├── Payment.php
+    ├── Project.php
+    ├── Tax.php
+    └── InvoiceSettings.php
+```
+
+---
+
+## License
+
+MIT

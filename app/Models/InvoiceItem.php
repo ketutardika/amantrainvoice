@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class InvoiceItem extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToCompany;
 
     protected $fillable = [
-        'invoice_id', 'item_type', 'name', 'description',
+        'company_id', 'invoice_id', 'item_type', 'name', 'description',
         'quantity', 'unit', 'unit_price', 'total_price',
         'sort_order', 'meta_data'
     ];
