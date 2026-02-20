@@ -47,7 +47,7 @@ class PaymentsExport implements FromQuery, WithHeadings, WithMapping, WithStyles
             $payment->payment_number,
             $payment->invoice?->invoice_number,
             $payment->client?->name,
-            number_format($payment->amount, 2),
+            (float) $payment->amount,
             $payment->payment_date?->format('Y-m-d'),
             ucfirst(str_replace('_', ' ', $payment->payment_method)),
             ucfirst($payment->status),
