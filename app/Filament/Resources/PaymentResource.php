@@ -43,14 +43,16 @@ class PaymentResource extends Resource
 
                                 Forms\Components\Select::make('invoice_id')
                                     ->label('Invoice')
-                                    ->relationship('invoice', 'invoice_number')
+                                    ->relationship('invoice', 'invoice_number', fn ($query) => $query->where('company_id', Filament::getTenant()?->id))
                                     ->searchable()
                                     ->preload()
                                     ->required()
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state) {
-                                            $invoice = Invoice::find($state);
+                                            $invoice = Invoice::where('id', $state)
+                                                ->where('company_id', Filament::getTenant()?->id)
+                                                ->first();
                                             if ($invoice) {
                                                 $set('client_id', $invoice->client_id);
                                                 $set('amount', $invoice->balance_due);
@@ -60,7 +62,7 @@ class PaymentResource extends Resource
 
                                 Forms\Components\Select::make('client_id')
                                     ->label('Client')
-                                    ->relationship('client', 'name')
+                                    ->relationship('client', 'name', fn ($query) => $query->where('company_id', Filament::getTenant()?->id))
                                     ->searchable()
                                     ->preload()
                                     ->required()
@@ -268,7 +270,7 @@ class PaymentResource extends Resource
                     ]),
 
                 SelectFilter::make('client')
-                    ->relationship('client', 'name')
+                    ->relationship('client', 'name', fn ($query) => $query->where('company_id', Filament::getTenant()?->id))
                     ->searchable()
                     ->preload(),
 
@@ -345,6 +347,12 @@ class PaymentResource extends Resource
             ->defaultSort('created_at', 'desc');
     }
     
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('company_id', Filament::getTenant()?->id);
+    }
+
     public static function getRelations(): array
     {
         return [

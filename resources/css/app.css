@@ -63,3 +63,8 @@
 .dark .fi-dropdown-panel {
     background-color: rgb(30 41 59) !important;
 }
+
+/* Hide theme switcher from inside the user menu dropdown (shown in topbar instead) */
+.fi-user-menu .fi-theme-switcher {
+    display: none;
+}
