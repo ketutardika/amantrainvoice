@@ -15,7 +15,7 @@ class ViewInvoice extends Controller
         }
 
         try {
-            $invoice->load(['client', 'project', 'items', 'user']);
+            $invoice->load(['client', 'project', 'items', 'user', 'company']);
             
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('invoices.pdf', ['record' => $invoice])
                 ->setPaper('a4', 'portrait')
