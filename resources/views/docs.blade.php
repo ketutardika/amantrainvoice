@@ -4,7 +4,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Documentation — {{ config('app.name') }}</title>
-    <meta name="description" content="Step-by-step guide for getting started with {{ config('app.name') }}.">
+
+    {{-- Basic SEO --}}
+    <meta name="description" content="Step-by-step guide to get started with {{ config('app.name') }}. Learn how to register, set up your company, manage clients, and create invoices.">
+    <meta name="keywords" content="invoice documentation, invoice guide, how to create invoice, invoice tutorial, {{ config('app.name') }} docs">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="{{ config('app.name') }}">
+    <link rel="canonical" href="{{ url('/docs') }}">
+
+    {{-- Open Graph --}}
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:title" content="Documentation — {{ config('app.name') }}">
+    <meta property="og:description" content="Step-by-step guide to get started with {{ config('app.name') }}. Learn how to register, set up your company, manage clients, and create invoices.">
+    <meta property="og:url" content="{{ url('/docs') }}">
+    <meta property="og:image" content="https://instantinvoice.cloud/images/instant-invoice-demo.png">
+    <meta property="og:image:alt" content="{{ config('app.name') }} dashboard preview">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Documentation — {{ config('app.name') }}">
+    <meta name="twitter:description" content="Step-by-step guide to get started with {{ config('app.name') }}. Learn how to register, set up your company, manage clients, and create invoices.">
+    <meta name="twitter:image" content="https://instantinvoice.cloud/images/instant-invoice-demo.png">
+    <meta name="twitter:image:alt" content="{{ config('app.name') }} dashboard preview">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
