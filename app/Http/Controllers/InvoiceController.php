@@ -337,7 +337,7 @@ class InvoiceController extends Controller
             abort(403, 'Unauthorized access to this invoice.');
         }
 
-        $invoice->load(['client', 'project', 'user', 'items']);
+        $invoice->load(['client', 'project', 'user', 'items', 'company']);
 
         $pdf = Pdf::loadView('invoices.pdf', ['record' => $invoice])
             ->setPaper('a4', 'portrait')

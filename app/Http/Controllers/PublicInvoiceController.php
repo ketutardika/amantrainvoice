@@ -24,7 +24,7 @@ class PublicInvoiceController extends Controller
         // Find the invoice by its opaque UUID token, scoped to that company
         $invoice = Invoice::where('company_id', $company->id)
             ->where('public_token', $publicToken)
-            ->with(['client', 'project', 'items', 'user'])
+            ->with(['client', 'project', 'items', 'user', 'company'])
             ->firstOrFail();
 
         // Mark as viewed if the invoice status is 'sent'
