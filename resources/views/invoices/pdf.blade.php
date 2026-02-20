@@ -514,7 +514,7 @@
                 <tr>
                     <td class="header-left">
                         <div class="invoice-title">INVOICE</div>
-                        <div class="detail-line">
+                        <div class="detail-line" style="margin-top: 4px;">
                             <span class="detail-label">Status:</span>
                             <span class="status-badge status-{{ $record->status }}">
                                 {{ ucfirst(str_replace('_', ' ', $record->status)) }}
@@ -559,7 +559,7 @@
                                 {{ $record->invoice_date->format('M d, Y') }}
                             </div>
                         </div>
-                        <div class="invoice-number">#{{ $record->invoice_number }}</div>
+                        <div class="invoice-number">#{{ $record->invoice_number }}</div>                        
                     </td>
                 </tr>
             </table>
@@ -749,7 +749,6 @@
                 <div class="payment-main-title">Payment Information</div>
                 <div class="payment-subtitle">Please transfer to one of the following accounts:</div>
             </div>
-            
             <table class="payment-table">
                 @foreach($bankAccounts as $index => $bank)
                     @if($index % 2 == 0)
@@ -802,6 +801,42 @@
             </table>
         </div>
         @endif
+
+        <!-- QR Code -->
+        <div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
+            @php
+                $publicUrl = \Illuminate\Support\Facades\URL::signedRoute('invoices.public.pdf', [
+                    'tenant'      => $record->company->slug,
+                    'publicToken' => $record->public_token,
+                ]);
+                $qrMatrix   = \BaconQrCode\Encoder\Encoder::encode($publicUrl, \BaconQrCode\Common\ErrorCorrectionLevel::M())->getMatrix();
+                $matrixSize = $qrMatrix->getWidth();
+                $quietZone  = 2;
+                $totalMod   = $matrixSize + ($quietZone * 2);
+                $blockSize  = max(2, (int)(90 / $totalMod));
+                $imgSize    = $blockSize * $totalMod;
+                $img        = imagecreate($imgSize, $imgSize);
+                $white      = imagecolorallocate($img, 255, 255, 255);
+                $black      = imagecolorallocate($img, 0, 0, 0);
+                imagefill($img, 0, 0, $white);
+                $offset = $quietZone * $blockSize;
+                for ($qy = 0; $qy < $matrixSize; $qy++) {
+                    for ($qx = 0; $qx < $matrixSize; $qx++) {
+                        if ($qrMatrix->get($qx, $qy) !== 0) {
+                            $px = $offset + $qx * $blockSize;
+                            $py = $offset + $qy * $blockSize;
+                            imagefilledrectangle($img, $px, $py, $px + $blockSize - 1, $py + $blockSize - 1, $black);
+                        }
+                    }
+                }
+                ob_start();
+                imagepng($img);
+                $qrBase64 = base64_encode(ob_get_clean());
+                imagedestroy($img);
+            @endphp
+            <img src="data:image/png;base64,{{ $qrBase64 }}" alt="QR Code" style="width: {{ $imgSize }}px; height: {{ $imgSize }}px; display: inline-block;">
+            <div style="font-size: 8px; color: #999; margin-top: 4px;">Scan to view &amp; pay</div>
+        </div>
 
         <!-- Footer -->
         <div class="footer">
