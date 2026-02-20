@@ -349,7 +349,12 @@ class InvoiceController extends Controller
                 'isPhpEnabled' => false,
             ]);
         
-        return $pdf->stream('invoice-' . $invoice->invoice_number . '.pdf');
+        $siteHost = parse_url(config('app.url'), PHP_URL_HOST);
+        $companySlug = auth()->user()->company->slug;
+        $invoiceSlug = strtolower(str_replace(['/', '\\', ' '], '-', $invoice->invoice_number));
+        $timestamp = now()->format('Y-m-d_His');
+
+        return $pdf->stream("{$siteHost}-export-invoice-{$companySlug}-{$invoiceSlug}={$timestamp}.pdf");
     }
 
     /**

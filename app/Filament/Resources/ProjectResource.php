@@ -193,6 +193,26 @@ class ProjectResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->headerActions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('export_csv')
+                        ->label('Export CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('gray')
+                        ->url(fn () => route('export.data', ['model' => 'projects', 'format' => 'csv']))
+                        ->openUrlInNewTab(),
+                    Tables\Actions\Action::make('export_xlsx')
+                        ->label('Export XLSX')
+                        ->icon('heroicon-o-table-cells')
+                        ->color('success')
+                        ->url(fn () => route('export.data', ['model' => 'projects', 'format' => 'xlsx']))
+                        ->openUrlInNewTab(),
+                ])
+                ->label('Export')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray')
+                ->button(),
+            ])
             ->filters([
                 SelectFilter::make('status')
                     ->options([

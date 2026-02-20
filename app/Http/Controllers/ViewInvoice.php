@@ -39,7 +39,7 @@ class ViewInvoice extends Controller
             
             return response($pdfOutput, 200, [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="invoice-' . $invoice->invoice_number . '.pdf"',
+                'Content-Disposition' => 'inline; filename="' . parse_url(config('app.url'), PHP_URL_HOST) . '-export-invoice-' . auth()->user()->company->slug . '-' . strtolower(str_replace(['/', '\\', ' '], '-', $invoice->invoice_number)) . '=' . now()->format('Y-m-d_His') . '.pdf"',
                 'Content-Length' => strlen($pdfOutput),
                 'Cache-Control' => 'no-cache, no-store, must-revalidate',
                 'Pragma' => 'no-cache',

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PublicInvoiceController;
 use App\Http\Controllers\ViewInvoice;
@@ -24,6 +25,7 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'generatePdf'])->name('invoices.pdf');
     Route::get('/invoices/{invoice}/view', ViewInvoice::class)->name('invoices.view');
+    Route::get('/export/{model}', [ExportController::class, 'export'])->name('export.data');
 });
 
 // Public invoice URL — accessible by clients without authentication.

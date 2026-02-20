@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Invoice {{ $record->invoice_number }}</title>
+    <title>{{ $record->company->name }} - Invoice {{ $record->invoice_number }} - {{ parse_url(config('app.url'), PHP_URL_HOST) }}</title>
     <style>
         @page {
             margin: 20mm;
