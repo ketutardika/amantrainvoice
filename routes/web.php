@@ -18,7 +18,7 @@ use App\Http\Controllers\ViewInvoice;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('landing.index');
 });
 
 Route::get('/login', function () {
@@ -26,7 +26,7 @@ Route::get('/login', function () {
 })->name('login');
 
 Route::get('/docs', function () {
-    return view('docs');
+    return view('landing.docs');
 })->name('docs');
 
 // PDF Routes (authenticated)

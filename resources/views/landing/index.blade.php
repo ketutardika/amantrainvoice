@@ -88,7 +88,6 @@
         <div class="hidden md:flex items-center gap-8 text-sm text-[#737373]">
             <a href="#features" class="hover:text-[#1A1A1A] transition-colors">Features</a>
             <a href="#how-it-works" class="hover:text-[#1A1A1A] transition-colors">How it works</a>
-            <a href="#pricing" class="hover:text-[#1A1A1A] transition-colors">Pricing</a>
             <a href="/docs" class="hover:text-[#1A1A1A] transition-colors">Docs</a>
         </div>
 
@@ -322,67 +321,12 @@
     </div>
 </section>
 
-{{-- ─── PRICING ─────────────────────────────────────────────────────────────── --}}
+{{-- ─── PRICING (hidden) ────────────────────────────────────────────────────── --}}
+{{-- Pricing section hidden — uncomment to restore
 <section id="pricing" class="py-20 px-6">
-    <div class="max-w-4xl mx-auto">
-
-        <div class="text-center mb-14">
-            <h2 class="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-3 tracking-tight">Simple, transparent pricing</h2>
-            <p class="text-[#737373] text-lg">Start free. Upgrade when you're ready.</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-
-            {{-- Free --}}
-            <div class="bg-white rounded-2xl border border-[#E8E8E8] p-7 shadow-sm">
-                <p class="text-sm font-semibold text-[#737373] mb-3 uppercase tracking-wider">Free</p>
-                <div class="flex items-baseline gap-1 mb-5">
-                    <span class="text-4xl font-extrabold text-[#1A1A1A]">Rp 0</span>
-                    <span class="text-[#737373] text-sm">/month</span>
-                </div>
-                <ul class="space-y-2.5 mb-7 text-sm text-[#737373]">
-                    @foreach(['Up to 10 invoices/month', '5 clients', 'PDF export', 'Basic company profile'] as $item)
-                    <li class="flex items-center gap-2.5">
-                        <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-                        </svg>
-                        {{ $item }}
-                    </li>
-                    @endforeach
-                </ul>
-                <a href="/admin/register" class="block w-full py-2.5 text-center border border-[#E8E8E8] rounded-xl text-sm font-semibold text-[#1A1A1A] hover:border-slate-300 hover:bg-slate-50 transition-colors">
-                    Get started free
-                </a>
-            </div>
-
-            {{-- Pro --}}
-            <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-7 shadow-xl shadow-slate-900/20 relative overflow-hidden">
-                <div class="absolute top-4 right-4 px-2.5 py-1 bg-white/10 text-white text-xs font-semibold rounded-full">
-                    Popular
-                </div>
-                <p class="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">Pro</p>
-                <div class="flex items-baseline gap-1 mb-5">
-                    <span class="text-4xl font-extrabold text-white">Rp 99k</span>
-                    <span class="text-slate-400 text-sm">/month</span>
-                </div>
-                <ul class="space-y-2.5 mb-7 text-sm text-slate-300">
-                    @foreach(['Unlimited invoices', 'Unlimited clients', 'PDF export + QR code', 'Payment tracking', 'Tax & project management', 'Export CSV / XLSX'] as $item)
-                    <li class="flex items-center gap-2.5">
-                        <svg class="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-                        </svg>
-                        {{ $item }}
-                    </li>
-                    @endforeach
-                </ul>
-                <a href="/admin/register" class="block w-full py-2.5 text-center bg-white text-slate-900 rounded-xl text-sm font-bold hover:bg-slate-100 transition-colors">
-                    Start Pro trial
-                </a>
-            </div>
-
-        </div>
-    </div>
+    ...
 </section>
+--}}
 
 {{-- ─── CTA BANNER ──────────────────────────────────────────────────────────── --}}
 <section class="py-20 px-6 bg-white border-y border-[#E8E8E8]">
@@ -421,7 +365,7 @@
         <div class="flex items-center gap-6 text-xs text-[#737373]">
             <a href="#features" class="hover:text-[#1A1A1A] transition-colors">Features</a>
             <a href="#how-it-works" class="hover:text-[#1A1A1A] transition-colors">How it works</a>
-            <a href="#pricing" class="hover:text-[#1A1A1A] transition-colors">Pricing</a>
+            <a href="/docs" class="hover:text-[#1A1A1A] transition-colors">Docs</a>
             <a href="/admin/login" class="hover:text-[#1A1A1A] transition-colors">Log in</a>
         </div>
 

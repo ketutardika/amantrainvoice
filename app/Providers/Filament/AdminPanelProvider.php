@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\RegisterCompany;
 use App\Filament\Pages\EditCompanyProfile;
@@ -34,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(Login::class)
             ->registration()
+            ->profile(EditProfile::class)
             ->tenant(Company::class, slugAttribute: 'slug')
             ->tenantRegistration(RegisterCompany::class)
             ->tenantProfile(EditCompanyProfile::class)
@@ -43,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->darkMode()
             ->renderHook('panels::head.end', fn () => view('filament.custom-head')->render())
+            ->renderHook('panels::user-menu.before', fn () => view('filament.topbar-theme-switcher'))
             ->navigationItems([
                 NavigationItem::make('Documentation')
                     ->url('/docs', shouldOpenInNewTab: true)
