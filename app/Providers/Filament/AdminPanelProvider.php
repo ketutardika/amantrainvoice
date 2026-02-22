@@ -43,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Blue,
             ])
-            ->darkMode()
+            ->darkMode(false)
             ->renderHook('panels::head.end', fn () => view('filament.custom-head')->render())
             ->renderHook('panels::user-menu.before', fn () => view('filament.topbar-theme-switcher'))
             ->navigationItems([
