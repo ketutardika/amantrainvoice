@@ -2,9 +2,9 @@
 
 A multi-tenant SaaS invoice management system built with **Laravel 10** and **Filament 3.0**. Each user registers, creates a company, and manages their own clients, invoices, payments, and projects — fully isolated from other tenants. Default currency is IDR (Indonesian Rupiah).
 
-🔗 **Live Demo**: [Instant Invoice](https://instantinvoice.cloud/)
+🔗 **Live Demo**: [Instant Invoice](https://ka-invoice.biz.id/)
 
-![InstantInvoice Demo](https://instantinvoice.cloud/images/instant-invoice-demo.png)
+![InstantInvoice Demo](https://ka-invoice.biz.id/images/instant-invoice-demo.png)
 
 ---
 
