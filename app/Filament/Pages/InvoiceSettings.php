@@ -192,6 +192,24 @@ class InvoiceSettings extends Page implements HasForms, HasActions
                                     ->helperText('Display company address on generated invoice PDFs')
                                     ->default(true),
                             ]),
+
+                        Grid::make(3)
+                            ->schema([
+                                Toggle::make('show_client_email')
+                                    ->label('Show Client Email on PDF')
+                                    ->helperText('Display client email in the Bill To section')
+                                    ->default(true),
+
+                                Toggle::make('show_client_phone')
+                                    ->label('Show Client Phone on PDF')
+                                    ->helperText('Display client phone in the Bill To section')
+                                    ->default(true),
+
+                                Toggle::make('show_client_address')
+                                    ->label('Show Client Address on PDF')
+                                    ->helperText('Display client address in the Bill To section')
+                                    ->default(true),
+                            ]),
                     ])
                     ->columns(2),
 
@@ -325,6 +343,7 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'invoice_prefix', 'default_currency', 'default_payment_terms', 'default_tax_rate', 'late_fee_percentage',
             'invoice_template', 'date_format', 'invoice_footer_text',
             'show_company_email', 'show_company_phone', 'show_company_address',
+            'show_client_email', 'show_client_phone', 'show_client_address',
             'auto_send_invoice', 'send_payment_reminders', 'auto_follow_up', 'reminder_days_before', 'followup_days_after',
             'default_terms_conditions', 'default_notes', 'bank_accounts'
         ];
@@ -334,7 +353,7 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             $value = InvoiceSettingsModel::getValue($key);
             
             // Convert string booleans to actual booleans for toggles
-            if (in_array($key, ['auto_send_invoice', 'send_payment_reminders', 'auto_follow_up', 'show_company_email', 'show_company_phone', 'show_company_address'])) {
+            if (in_array($key, ['auto_send_invoice', 'send_payment_reminders', 'auto_follow_up', 'show_company_email', 'show_company_phone', 'show_company_address', 'show_client_email', 'show_client_phone', 'show_client_address'])) {
                 $data[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
             } elseif ($key === 'bank_accounts') {
                 // Decode JSON array for bank accounts
@@ -355,7 +374,8 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'company_logo' => 'file',
             'default_payment_terms', 'default_tax_rate', 'late_fee_percentage', 'reminder_days_before', 'followup_days_after' => 'number',
             'auto_send_invoice', 'send_payment_reminders', 'auto_follow_up',
-            'show_company_email', 'show_company_phone', 'show_company_address' => 'boolean',
+            'show_company_email', 'show_company_phone', 'show_company_address',
+            'show_client_email', 'show_client_phone', 'show_client_address' => 'boolean',
             'company_address', 'invoice_footer_text', 'default_terms_conditions', 'default_notes' => 'textarea',
             'bank_accounts' => 'json',
             default => 'text'
@@ -383,6 +403,9 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'show_company_email' => 'Show company email on generated invoice PDFs',
             'show_company_phone' => 'Show company phone on generated invoice PDFs',
             'show_company_address' => 'Show company address on generated invoice PDFs',
+            'show_client_email' => 'Show client email in Bill To section of invoice PDFs',
+            'show_client_phone' => 'Show client phone in Bill To section of invoice PDFs',
+            'show_client_address' => 'Show client address in Bill To section of invoice PDFs',
             'auto_send_invoice' => 'Automatically send invoices via email when created',
             'send_payment_reminders' => 'Send automatic payment reminder emails',
             'auto_follow_up' => 'Send follow-up emails for overdue invoices',

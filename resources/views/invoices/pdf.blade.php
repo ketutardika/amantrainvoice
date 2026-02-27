@@ -529,6 +529,9 @@
                             $showEmail        = filter_var(\App\Models\InvoiceSettings::getValue('show_company_email', true, $companyId), FILTER_VALIDATE_BOOLEAN);
                             $showPhone        = filter_var(\App\Models\InvoiceSettings::getValue('show_company_phone', true, $companyId), FILTER_VALIDATE_BOOLEAN);
                             $showAddress      = filter_var(\App\Models\InvoiceSettings::getValue('show_company_address', true, $companyId), FILTER_VALIDATE_BOOLEAN);
+                            $showClientEmail  = filter_var(\App\Models\InvoiceSettings::getValue('show_client_email', true, $companyId), FILTER_VALIDATE_BOOLEAN);
+                            $showClientPhone  = filter_var(\App\Models\InvoiceSettings::getValue('show_client_phone', true, $companyId), FILTER_VALIDATE_BOOLEAN);
+                            $showClientAddress = filter_var(\App\Models\InvoiceSettings::getValue('show_client_address', true, $companyId), FILTER_VALIDATE_BOOLEAN);
                             $logoBase64  = null;
                             $logoMime    = 'image/png';
 
@@ -579,23 +582,16 @@
                             @if($record->client->company_name)
                                 <div class="client-company">{{ $record->client->company_name }}</div>
                             @endif
-                            @if($record->client->address)
+                            @if($showClientAddress && $record->client->address)
                                 <div class="client-address">{!! $record->client->address !!}</div>
                             @endif
                             <div class="client-info">
-                                {{ $record->client->email }}
-                                @if($record->client->phone)
+                                @if($showClientEmail)
+                                    {{ $record->client->email }}
+                                @endif
+                                @if($showClientPhone && $record->client->phone)
                                     <br><a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $record->client->phone) }}" class="whatsapp-link">{{ $record->client->phone }}</a>
                                 @endif
-                                <!-- @if($record->client->address)
-                                    <br>{!! $record->client->address !!}
-                                    @if($record->client->city || $record->client->state || $record->client->postal_code)
-                                        <br>{{ $record->client->city }}@if($record->client->city && ($record->client->state || $record->client->postal_code)), @endif{{ $record->client->state }} {{ $record->client->postal_code }}
-                                    @endif
-                                    @if($record->client->country)
-                                        <br>{{ $record->client->country }}
-                                    @endif
-                                @endif -->
                             </div>
                             
                             @if($record->project)
