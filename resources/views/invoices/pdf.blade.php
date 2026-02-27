@@ -523,9 +523,12 @@
                     </td>
                     <td class="header-center">
                         @php
-                            $companyId   = $record->company_id;
-                            $logoPath    = \App\Models\InvoiceSettings::getValue('company_logo', null, $companyId);
-                            $tagline     = \App\Models\InvoiceSettings::getValue('company_tagline', null, $companyId);
+                            $companyId        = $record->company_id;
+                            $logoPath         = \App\Models\InvoiceSettings::getValue('company_logo', null, $companyId);
+                            $tagline          = \App\Models\InvoiceSettings::getValue('company_tagline', null, $companyId);
+                            $showEmail        = filter_var(\App\Models\InvoiceSettings::getValue('show_company_email', true, $companyId), FILTER_VALIDATE_BOOLEAN);
+                            $showPhone        = filter_var(\App\Models\InvoiceSettings::getValue('show_company_phone', true, $companyId), FILTER_VALIDATE_BOOLEAN);
+                            $showAddress      = filter_var(\App\Models\InvoiceSettings::getValue('show_company_address', true, $companyId), FILTER_VALIDATE_BOOLEAN);
                             $logoBase64  = null;
                             $logoMime    = 'image/png';
 
@@ -608,16 +611,18 @@
                             <div class="section-title">From:</div>
                             <div class="client-name">{{ \App\Models\InvoiceSettings::getValue('company_name', config('app.name', 'Your Company'), $companyId) }}</div>
                             <div class="client-info">
-                                {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com', $companyId) }}
-                                @if(\App\Models\InvoiceSettings::getValue('company_phone', null, $companyId))
+                                @if($showEmail)
+                                    {{ \App\Models\InvoiceSettings::getValue('company_email', 'admin@company.com', $companyId) }}
+                                @endif
+                                @if($showPhone && \App\Models\InvoiceSettings::getValue('company_phone', null, $companyId))
                                     <br><a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', \App\Models\InvoiceSettings::getValue('company_phone', '', $companyId)) }}" class="whatsapp-link">{{ \App\Models\InvoiceSettings::getValue('company_phone', '', $companyId) }}</a>
                                 @endif
                                 @if(\App\Models\InvoiceSettings::getValue('company_website', null, $companyId))
                                     <br>{{ \App\Models\InvoiceSettings::getValue('company_website', '', $companyId) }}
                                 @endif
-                                <!-- @if(\App\Models\InvoiceSettings::getValue('company_address'))
-                                    <br>{!! \App\Models\InvoiceSettings::getValue('company_address') !!}
-                                @endif -->
+                                @if($showAddress && \App\Models\InvoiceSettings::getValue('company_address', null, $companyId))
+                                    <br>{!! \App\Models\InvoiceSettings::getValue('company_address', '', $companyId) !!}
+                                @endif
                             </div>
                         </div>
                     </td>

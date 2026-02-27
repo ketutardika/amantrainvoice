@@ -174,6 +174,24 @@ class InvoiceSettings extends Page implements HasForms, HasActions
                             ->rows(2)
                             ->placeholder('Thank you for your business!')
                             ->columnSpanFull(),
+
+                        Grid::make(3)
+                            ->schema([
+                                Toggle::make('show_company_email')
+                                    ->label('Show Email on PDF')
+                                    ->helperText('Display company email on generated invoice PDFs')
+                                    ->default(true),
+
+                                Toggle::make('show_company_phone')
+                                    ->label('Show Phone on PDF')
+                                    ->helperText('Display company phone on generated invoice PDFs')
+                                    ->default(true),
+
+                                Toggle::make('show_company_address')
+                                    ->label('Show Address on PDF')
+                                    ->helperText('Display company address on generated invoice PDFs')
+                                    ->default(true),
+                            ]),
                     ])
                     ->columns(2),
 
@@ -306,6 +324,7 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'company_logo', 'company_tagline',
             'invoice_prefix', 'default_currency', 'default_payment_terms', 'default_tax_rate', 'late_fee_percentage',
             'invoice_template', 'date_format', 'invoice_footer_text',
+            'show_company_email', 'show_company_phone', 'show_company_address',
             'auto_send_invoice', 'send_payment_reminders', 'auto_follow_up', 'reminder_days_before', 'followup_days_after',
             'default_terms_conditions', 'default_notes', 'bank_accounts'
         ];
@@ -315,7 +334,7 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             $value = InvoiceSettingsModel::getValue($key);
             
             // Convert string booleans to actual booleans for toggles
-            if (in_array($key, ['auto_send_invoice', 'send_payment_reminders', 'auto_follow_up'])) {
+            if (in_array($key, ['auto_send_invoice', 'send_payment_reminders', 'auto_follow_up', 'show_company_email', 'show_company_phone', 'show_company_address'])) {
                 $data[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
             } elseif ($key === 'bank_accounts') {
                 // Decode JSON array for bank accounts
@@ -335,7 +354,8 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'company_website' => 'url',
             'company_logo' => 'file',
             'default_payment_terms', 'default_tax_rate', 'late_fee_percentage', 'reminder_days_before', 'followup_days_after' => 'number',
-            'auto_send_invoice', 'send_payment_reminders', 'auto_follow_up' => 'boolean',
+            'auto_send_invoice', 'send_payment_reminders', 'auto_follow_up',
+            'show_company_email', 'show_company_phone', 'show_company_address' => 'boolean',
             'company_address', 'invoice_footer_text', 'default_terms_conditions', 'default_notes' => 'textarea',
             'bank_accounts' => 'json',
             default => 'text'
@@ -360,6 +380,9 @@ class InvoiceSettings extends Page implements HasForms, HasActions
             'invoice_template' => 'Default invoice template design',
             'date_format' => 'Date format used in invoices',
             'invoice_footer_text' => 'Text displayed in invoice footer',
+            'show_company_email' => 'Show company email on generated invoice PDFs',
+            'show_company_phone' => 'Show company phone on generated invoice PDFs',
+            'show_company_address' => 'Show company address on generated invoice PDFs',
             'auto_send_invoice' => 'Automatically send invoices via email when created',
             'send_payment_reminders' => 'Send automatic payment reminder emails',
             'auto_follow_up' => 'Send follow-up emails for overdue invoices',
