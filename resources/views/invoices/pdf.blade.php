@@ -835,7 +835,7 @@
                 imagedestroy($img);
             @endphp
             <img src="data:image/png;base64,{{ $qrBase64 }}" alt="QR Code" style="width: {{ $imgSize }}px; height: {{ $imgSize }}px; display: inline-block;">
-            <div style="font-size: 8px; color: #999; margin-top: 4px;">Scan to view &amp; pay</div>
+            <div style="font-size: 8px; color: #999; margin-top: 4px;">Scan to view Invoice</div>
         </div>
 
         <!-- Footer -->
